@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hermetic — Zero-Knowledge Credential Broker</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAARCAYAAAC8XK78AAADiUlEQVR42o2V32scVRTHP3dm9kfSgLHbpFTQpOlLCBSaPFUwCon6pD5JFR9MX4oPbSkxFZUKlQqB4h8gtA8VX4Qmaiq2T3m0QYuCpAkGgrpphDYh2bCB3Z2dmXtPH3ZmMzO7aXuGw9w53Hvu+fE931Ha1AQUgqBQ7Ikg0GJriMJSOfygiud5HOjsBgza1FFKQeJM/FzaqnCizarNRpVwoBBpWI0Wrt/4hpmbs2ijGR4+wcWpKY68cAStPSzLaglCGi5i1sbKYh+R5qa9oIwx2FaOa9evcfXq17z+xjgTH05w99cFJic/pl73sJQdBioxjfJN3SAC2rjS0FpTgzbvQNfEGFc8vyKjo6/I9PRXEsnS8l8yMHBU/vjzNxER8fyKBKHPIOZXh37i9znJgkd9jyxhBcIklFL4vo82Bsu2uXfvd6rVCn5Qx8lkqFariEiiiSqNKaUS9zmk+pzsewhNJc3+KwX1usvc3M/8+MNPeJ5HJpNlp7RDuVwOL5AYptKJJVO0otjifRORJgZUeFgERCyuXJmmWqlhtCafz/NcdzdGDIVCgU8ufs7fK/dxnA6MMQm0p1OLxGkWSsUKpRrWqCZGazJOJ7fv3OL2L3ewHZuRkROcPj3B8wcLLCzc5dsb3/Hqa6P0HDqMMQG0HUfVivY9EMa1lvj2gqoYo+X8+bMyNDQkp069K+v/F+XmzPdy7txZ8XxXtrYfhpDUIfDcp2qgEyDchwFEsC2bQNfZLpXo6upi4NgxensOUyyuMT8/T8bJUjh4iLpXwbatkAeeLkqpOA9IezZQIGKwLIdsJkOlUuHRo4dUaxX6XnqRkZFhQFGtVchlD+DYuTa+Wr+jx758+Ysv06NIapC01mScPMW1f1lcXGJzYxPf9zj58knGxsdYXr7PZ59e4r/iPwwODpLvyAOmAQNUyneMeQWUNq7QMh6SaIWIoJTNTqnEe+9/wIO1dXp7e+g/2k8ul2N1dZWtrW3WH6wzd2uW8bE38YMatm0/8V8AKh7A/oQMCmM0jt3B0tIiFy5MsrGxiWVbuK5LLpvD9z2mpiY5c+YjAu3GcBBnAInVIazEkwMgdjAKopPybomZmVlWVlbYLe/S19/HO2+/xfHjw2jjxtguXvpIkwBtBpDqTjN7SU2vMQbHzkQUkpBA1/adAJGQGlKBKW3qQsiESj3T8CBi0No0MxVprPd6/mx+AB4DEYFdH5AnrxMAAAAASUVORK5CYII=">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+:root{--bg:#08090d;--card:#161824;--card-h:#181a24;--bdr:#2e3050;--bdr-g:#2a3060;--t1:#f5f6fa;--t2:#b8bfd6;--t3:#8890ac;--blue:#4a7cff;--cyan:#36d6c8;--green:#3edd8a;--orange:#ff8a4c;--red:#ff4c6a;--purple:#9366ff;--gold:#ffd166;--g-blue:rgba(74,124,255,0.15);--g-cyan:rgba(54,214,200,0.12);--g-green:rgba(62,221,138,0.12);--g-red:rgba(255,76,106,0.12);--g-purple:rgba(147,102,255,0.12);--g-gold:rgba(255,209,102,0.12);--hd:'Outfit',sans-serif;--mn:'JetBrains Mono',monospace;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:var(--hd);font-size:16px}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(90deg,rgba(74,124,255,0.03) 1px,transparent 1px),linear-gradient(rgba(74,124,255,0.03) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+body::after{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(74,124,255,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(54,214,200,0.04) 0%,transparent 50%);z-index:0;pointer-events:none}
+#root{position:relative;z-index:1}.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px}
+.crd{background:var(--card);border:1px solid var(--bdr);border-radius:12px;transition:border-color 0.3s,transform 0.2s,box-shadow 0.3s}
+.bloom{cursor:pointer;transition:all 0.25s}.bloom:hover{box-shadow:0 0 20px rgba(74,124,255,0.12),0 0 40px rgba(54,214,200,0.06);border-color:var(--bdr-g)!important;transform:translateY(-2px)}
+.bloom-gold:hover{box-shadow:0 0 20px rgba(255,209,102,0.18)}.bloom-red:hover{box-shadow:0 0 20px rgba(255,76,106,0.18)}.bloom-green:hover{box-shadow:0 0 20px rgba(62,221,138,0.18)}.bloom-purple:hover{box-shadow:0 0 20px rgba(147,102,255,0.18)}.bloom-cyan:hover{box-shadow:0 0 20px rgba(54,214,200,0.18)}
+.tag{font-family:var(--mn);font-size:14px;padding:3px 10px;border-radius:6px;border:1px solid;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.code-blk{background:#0d0e14;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin:12px 0}
+.code-hd{background:rgba(255,255,255,0.03);padding:8px 14px;font-family:var(--mn);font-size:14px;color:var(--t3);display:flex;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.code-bd{padding:14px 16px;font-family:var(--mn);font-size:15px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--t2)}
+.code-bd .k{color:var(--purple)}.code-bd .s{color:var(--green)}.code-bd .c{color:var(--t3);font-style:italic}.code-bd .n{color:var(--cyan)}.code-bd .v{color:var(--orange)}.code-bd .g{color:var(--gold)}.code-bd .r{color:var(--red)}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.fbx{padding:8px 14px;border-radius:8px;font-family:var(--mn);font-size:15px;font-weight:500;border:1px solid}
+.fbx-p{background:rgba(74,124,255,0.08);border-color:rgba(74,124,255,0.25);color:var(--blue)}.fbx-s{background:rgba(147,102,255,0.08);border-color:rgba(147,102,255,0.25);color:var(--purple)}.fbx-c{background:rgba(54,214,200,0.08);border-color:rgba(54,214,200,0.25);color:var(--cyan)}.fbx-r{background:rgba(255,76,106,0.08);border-color:rgba(255,76,106,0.25);color:var(--red)}.fbx-g{background:rgba(62,221,138,0.08);border-color:rgba(62,221,138,0.25);color:var(--green)}.fbx-o{background:rgba(255,138,76,0.08);border-color:rgba(255,138,76,0.25);color:var(--orange)}
+.farw{color:var(--t3);font-size:18px}
+/* TOPNAV — increased height */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(10,11,15,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 24px}
+.topnav-in{max-width:1120px;margin:0 auto;height:68px;display:flex;align-items:center;justify-content:space-between}
+.nav-tabs{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;min-width:0;margin-left:20px}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:10px 18px;font-size:16px;font-weight:500;color:var(--t3);border-radius:8px;cursor:pointer;transition:all 0.2s;white-space:nowrap;border:none;background:none;font-family:var(--hd)}
+.nav-tab:hover{color:var(--t2);background:rgba(255,255,255,0.04)}
+.nav-tab.active{color:var(--t1);background:rgba(74,124,255,0.12)}
+.sub-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+.sub-tab{padding:8px 16px;font-size:15px;font-weight:500;color:var(--t3);border-radius:8px;cursor:pointer;border:1px solid transparent;background:none;font-family:var(--hd);transition:all 0.2s}
+.sub-tab:hover{color:var(--t2);background:rgba(255,255,255,0.04)}
+.sub-tab.active{color:var(--t1);background:rgba(74,124,255,0.1);border-color:rgba(74,124,255,0.3)}
+/* Pipeline step classes — from v3 */
+.step{display:grid;grid-template-columns:72px 1fr;gap:0}.step-marker{display:flex;flex-direction:column;align-items:center}
+.step-num{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mn);font-weight:700;font-size:18px;border:2px solid;z-index:2;flex-shrink:0;transition:transform 0.3s}.step:hover .step-num{transform:scale(1.15)}
+.step-line{width:2px;flex:1;min-height:20px;z-index:1}.step-body{padding:0 0 32px 20px}
+.step-lbl{font-size:16px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.step-ttl{font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px}
+.step-desc{font-size:16px;color:var(--t2);line-height:1.6;margin-bottom:12px;max-width:700px}
+/* timeline bar */
+.tl-bar-wrap{height:30px;background:rgba(255,255,255,0.02);border-radius:6px;position:relative;overflow:hidden;border:1px solid var(--bdr)}.tl-bar{position:absolute;top:3px;bottom:3px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mn);font-size:14px;font-weight:600;animation:barGrow 1s ease-out both}
+.shimmer-line{height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;border-radius:1px;margin:20px 0}
+.gradient-border{position:relative;overflow:hidden}
+.gradient-border::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--green),var(--gold),var(--purple),var(--blue));background-size:200% 100%;animation:gradientShift 4s linear infinite}
+/* Burger & Drawer */
+.burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;background:none;border:1px solid var(--bdr);border-radius:8px;cursor:pointer;padding:10px;flex-shrink:0}
+.burger span{display:block;height:2px;background:var(--t2);border-radius:1px;transition:all 0.25s}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}.burger.open span:nth-child(2){opacity:0}.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;backdrop-filter:blur(4px)}.drawer-overlay.open{display:block}
+.drawer{position:fixed;top:0;right:0;transform:translateX(105%);width:min(300px,85vw);height:100%;background:#12131a;border-left:1px solid var(--bdr);z-index:201;transition:transform 0.3s;overflow-y:auto;padding:0 0 40px}.drawer.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bdr)}
+.drawer-close{width:32px;height:32px;background:none;border:1px solid var(--bdr);border-radius:6px;color:var(--t2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.drawer-item{display:flex;align-items:center;gap:12px;width:100%;padding:16px 20px;background:none;border:none;border-bottom:1px solid rgba(30,32,48,0.5);color:var(--t2);font-size:16px;font-family:var(--hd);cursor:pointer;text-align:left;transition:background 0.15s}.drawer-item:active{background:rgba(255,255,255,0.06)}.drawer-item.active{color:var(--t1);background:rgba(74,124,255,0.1)}
+.sec{padding:60px 0}.sec-hd{margin-bottom:32px}
+.sec-hd h2{font-size:clamp(24px,3.5vw,36px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;margin-bottom:12px}
+.sec-hd p{font-size:18px;color:var(--t2);line-height:1.6;max-width:680px}
+.sec-label{font-family:var(--mn);font-size:15px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}.sec-label::before,.sec-label::after{content:'';flex:0 0 30px;height:1px}
+.tip{position:relative;cursor:help;border-bottom:1px dashed currentColor;display:inline}.tip .tip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);min-width:220px;max-width:340px;padding:10px 14px;background:#1a1c28;border:1px solid var(--bdr-g);border-radius:8px;font-size:14px;font-weight:400;color:var(--t2);line-height:1.5;z-index:50;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-family:var(--hd);white-space:normal;letter-spacing:0;text-transform:none}.tip .tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1a1c28}.tip:hover .tip-box{display:block;animation:fadeIn 0.15s}
+/* Zeroize animation */
+@keyframes sealFloat{0%,100%{transform:scale(1);filter:invert(1) brightness(0.85) drop-shadow(0 0 6px rgba(255,76,106,0.4))}50%{transform:scale(1.04);filter:invert(1) brightness(0.95) drop-shadow(0 0 10px rgba(255,76,106,0.6))}}
+@keyframes zeroizeFlash{0%{opacity:1;filter:brightness(1)}15%{filter:brightness(2.5) saturate(0)}30%{opacity:0.6;filter:brightness(1.8) saturate(0.3)}60%{opacity:0.3}100%{opacity:0;filter:brightness(0)}}
+.seal-zeroize{animation:zeroizeFlash 1.2s ease-out both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes barGrow{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.anim-up{animation:fadeUp 0.6s ease-out both}.d1{animation-delay:0.1s}.d2{animation-delay:0.2s}.d3{animation-delay:0.3s}.d4{animation-delay:0.4s}.d5{animation-delay:0.5s}
+@media(max-width:768px){
+  .burger{display:flex}.nav-tabs{display:none}.topnav{padding:0 16px}.topnav-in{gap:8px;height:56px}
+  .wrap{padding:0 16px}.sec{padding:36px 0}.sec-hd p{font-size:16px}
+  .code-bd{font-size:13px;padding:10px 12px}.code-hd{font-size:13px}
+  .step{grid-template-columns:48px 1fr}.step-num{width:36px;height:36px;font-size:14px}.step-body{padding:0 0 24px 12px}.step-desc{font-size:14px}
+  .sec-label{font-size:13px;letter-spacing:2px}.sub-tabs{gap:3px}.sub-tab{padding:6px 12px;font-size:13px}
+  .tip .tip-box{left:0;transform:none;max-width:calc(100vw - 48px)}.tip .tip-box::after{left:16px;transform:none}
+}
+</style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useRef}=React;
+const HERO_LOGO='data:image/jpeg;base64,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';
+const HERMETIC_ICON='data:image/png;base64,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';
+const SECTIONS=[{id:'start',name:'Get Started',icon:'⚡'},{id:'security',name:'Security',icon:'🔐'},{id:'proof',name:'Proof',icon:'🗡️'},{id:'pricing',name:'Pricing',icon:'💎'},{id:'v2',name:'V2 Roadmap',icon:'🚀'}];
+
+// ═══ TIPS ═══
+const TIPS={'AES-256-GCM':'256-bit authenticated encryption with associated data.','Argon2id':'Memory-hard KDF. Winner of the Password Hashing Competition.','HKDF':'HMAC-based Key Derivation Function (RFC 5869).','SQLCipher':'AES-256 encrypted SQLite.','KEK':'Key Encryption Key derived per-secret via HKDF.','stdio':'Standard I/O — process-level isolation boundary.','mlockall':'Linux syscall locking all process memory into RAM.','seccomp':'Linux kernel syscall whitelist restriction.','ptrace':'Debug attach — blocked to prevent memory inspection.','SO_PEERCRED':'Unix socket kernel-verified UID/PID of connected peer.','Zeroizing':'Rust crate: overwrites memory on drop. Cannot be optimized away.','UDS':'Unix Domain Socket — local IPC with filesystem ACL.','JSON-RPC':'JSON-RPC 2.0 strict validation protocol.','HAIG':'Human-AI Integrated Governance framework.','CL-1':'Community limit: 1 named environment. Upgraded by commercial license.','CL-2':'Community limit: 7-day audit log retention. Upgraded by commercial license.','CL-3':'Community banner in daemon startup and MCP initialize response. Removed by commercial license.','CC-1':'One-Time Handle Consumption: atomically consumed before validation.','HC-2':'SSRF Validation Suite: private IP blocked, DNS rebinding defense.','MCP-1':'JSON-RPC 2.0 strict validation. All malformed rejected.','MCP-2':'5 MCP tools: list, store, auth_request, env_spawn, seal.','MCP-3':'stdio transport boundary. OS process isolation.','CC-4':'Per-secret KEK via HKDF-SHA256 with unique domain info.','CC-5':'Double encryption: SQLCipher database + AES-256-GCM per-secret.','CC-2':'AES-256-GCM authenticated encryption with per-secret AAD.','SM-5':'Vault type: no Clone, no Debug, no Display, no Serialize.','SM-4':'Single-threaded accept loop. No concurrent accept races.','BC-3':'mlockall() pins all daemon memory to RAM.','HC-3':'SO_PEERCRED kernel-verified caller identity.','HC-5':'Handle domain-locked at issuance. Redirect blocked.'};
+
+// ═══ 36 INVARIANTS ═══
+const INV={
+'CC-1':{cat:'Core Crypto',name:'One-Time Handle Consumption',desc:'Handle atomically consumed before any checks. Race-condition verified across 1,350 attempts.'},
+'CC-2':{cat:'Core Crypto',name:'AES-256-GCM Encryption',desc:'Per-secret authenticated encryption with AAD domain separation.'},
+'CC-3':{cat:'Core Crypto',name:'Argon2id Key Derivation',desc:'Memory-hard KDF makes GPU/ASIC brute force economically infeasible.'},
+'CC-4':{cat:'Core Crypto',name:'HKDF Domain Separation',desc:'Per-secret KEK via HKDF-SHA256 with unique domain info.'},
+'CC-5':{cat:'Core Crypto',name:'SQLCipher Database Encryption',desc:'Double encryption: page-level database + per-secret envelope.'},
+'IC-1':{cat:'Info Control',name:'Denial Indistinguishability',desc:'All denials byte-identical. Multiple failure types verified identical.'},
+'IC-2':{cat:'Info Control',name:'No Secret in Errors',desc:'Error variants carry metadata only. Structural type-system guarantee.'},
+'IC-3':{cat:'Info Control',name:'No Secret in Logs',desc:'Logging receives names and metadata only. Never secret bytes.'},
+'MCP-1':{cat:'MCP Protocol',name:'JSON-RPC 2.0 Validation',desc:'Strict validation. All malformed requests rejected.'},
+'MCP-2':{cat:'MCP Protocol',name:'Tool Dispatch (5 tools)',desc:'list, store, auth_request, env_spawn, seal. Unknown rejected.'},
+'MCP-3':{cat:'MCP Protocol',name:'stdio Transport Boundary',desc:'OS process boundary. No shared memory or IPC bypass.'},
+'SM-1':{cat:'State Machine',name:'Sealed/Unsealed Enforcement',desc:'Sealed vault rejects all ops except status. Irreversible.'},
+'SM-2':{cat:'State Machine',name:'Mutex Concurrency',desc:'All access serialized. No double-locks. No I/O under lock.'},
+'SM-3':{cat:'State Machine',name:'Connection Isolation',desc:'Each connection independent. Verified under simultaneous load.'},
+'SM-4':{cat:'State Machine',name:'Single-Threaded Accept',desc:'Eliminates concurrent accept races. Predictable resources.'},
+'SM-5':{cat:'State Machine',name:'No Clone on Vault',desc:'Vault cannot be cloned, displayed, or serialized. Compiler-enforced.'},
+'HC-1':{cat:'Handle Control',name:'256-bit CSPRNG Handle',desc:'Full 256-bit keyspace from OS entropy. Brute force infeasible.'},
+'HC-2':{cat:'Handle Control',name:'SSRF Validation Suite',desc:'Private IP ranges blocked with DNS rebinding defense.'},
+'HC-3':{cat:'Handle Control',name:'UID Binding (SO_PEERCRED)',desc:'Kernel-enforced UID binding. Cannot be stolen cross-process.'},
+'HC-4':{cat:'Handle Control',name:'TTL Auto-Expiry',desc:'Short-lived handles with periodic sweep. Stale always rejected.'},
+'HC-5':{cat:'Handle Control',name:'Domain Binding',desc:'Handle locked to specific domain at issuance. Redirect blocked.'},
+'HC-6':{cat:'Handle Control',name:'Method Whitelist',desc:'Only standard HTTP methods. Dangerous methods blocked.'},
+'HC-7':{cat:'Handle Control',name:'Per-UID Handle Cap',desc:'Concurrent handle cap per UID. Exhaustion defense.'},
+'BC-1':{cat:'Boundary',name:'Process Boundary (stdio)',desc:'Separate OS processes. Kernel memory isolation.'},
+'BC-2':{cat:'Boundary',name:'Socket Boundary (UDS)',desc:'Only owner can connect. Filesystem ACL enforced.'},
+'BC-3':{cat:'Boundary',name:'Memory Lock (mlockall)',desc:'All daemon memory locked. Never swapped to disk.'},
+'BC-4':{cat:'Boundary',name:'Socket Path Restriction',desc:'Temporary directories rejected. Must be user-owned path.'},
+'BC-5':{cat:'Boundary',name:'Zeroizing Memory Wipe',desc:'Compiler-enforced overwrite on drop. Cannot be optimized away.'},
+'T-1':{cat:'Transport',name:'HTTPS-Only',desc:'HTTP rejected. Credential never sent unencrypted.'},
+'T-2':{cat:'Transport',name:'DNS Rebinding Defense',desc:'Pre/post resolution comparison prevents DNS rebinding.'},
+'T-3':{cat:'Transport',name:'No Embedded Credentials',desc:'URLs cannot contain embedded credentials.'},
+'T-4':{cat:'Transport',name:'No IP Literal',desc:'Forces DNS resolution through SSRF validation pipeline.'},
+'W-1':{cat:'Wire',name:'Frame Cap (1 MiB)',desc:'Prevents memory exhaustion via oversized messages.'},
+'W-2':{cat:'Wire',name:'Strict Field Validation',desc:'All wire types reject unknown JSON fields.'},
+'W-3':{cat:'Wire',name:'I/O Timeouts',desc:'Prevents slowloris and connection stalling attacks.'},
+'Seal':{cat:'Governance',name:'Irreversible Vault Seal',desc:'Drops master_key permanently. No undo.'}
+};
+const INV_CATS=['Core Crypto','Info Control','MCP Protocol','State Machine','Handle Control','Boundary','Transport','Wire','Governance'];
+const CAT_COLORS={'Core Crypto':'gold','Info Control':'purple','MCP Protocol':'cyan','State Machine':'orange','Handle Control':'blue','Boundary':'green','Transport':'red','Wire':'purple','Governance':'red'};
+const DEP_EDGES=[['CC-1','HC-1'],['CC-1','HC-3'],['CC-1','HC-4'],['CC-1','SM-2'],['CC-2','CC-4'],['CC-2','CC-5'],['CC-3','CC-4'],['CC-4','CC-2'],['CC-5','CC-2'],['IC-1','HC-1'],['IC-1','IC-2'],['IC-1','IC-3'],['MCP-1','MCP-2'],['MCP-2','MCP-3'],['MCP-3','BC-1'],['SM-1','Seal'],['SM-2','CC-1'],['SM-3','BC-2'],['SM-4','SM-2'],['SM-5','CC-2'],['HC-1','IC-1'],['HC-2','T-1'],['HC-2','T-2'],['HC-2','T-4'],['HC-3','BC-2'],['HC-4','SM-2'],['HC-5','T-1'],['HC-6','T-1'],['HC-7','SM-2'],['BC-1','MCP-3'],['BC-2','HC-3'],['BC-3','BC-5'],['BC-4','BC-2'],['BC-5','CC-2'],['T-1','HC-2'],['T-2','HC-2'],['T-3','T-1'],['T-4','T-2'],['W-1','MCP-1'],['W-2','MCP-1'],['W-3','SM-2'],['Seal','SM-1'],['Seal','BC-5']];
+const DEP_CAT_COLORS={'Core Crypto':'#ffd166','Info Control':'#9366ff','MCP Protocol':'#36d6c8','State Machine':'#ff8a4c','Handle Control':'#4a7cff','Boundary':'#3edd8a','Transport':'#ff4c6a','Wire':'#9366ff','Governance':'#ff4c6a'};
+
+// ═══ DATA ═══
+const GOV_ACTORS=[{icon:'👤',label:'Constitutional\nAuthority',sub:'Human Operator',c:'gold',desc:'Absolute veto. No AI override.'},{icon:'🏗️',label:'Architect &\nPlanner',sub:'AI Architect',c:'blue',desc:'System design. Architecture review.'},{icon:'🗡️',label:'Adversarial\nAuditor',sub:'AI Auditor',c:'red',desc:'Attack campaigns. Zero trust.'},{icon:'⚙️',label:'Execution\nAgent',sub:'AI Executor',c:'purple',desc:'Production Rust. CI enforcement.'}];
+const SETUP_CMDS=[
+{cmd:'$ cargo install hermetic',out:'  Downloading hermetic v1.2.0\n  Compiling 22K lines Rust...\n  Installing hermetic, hermetic-daemon\n\n✓ Installed.',delay:1800},
+{cmd:'$ hermetic init --mode software',out:'⚙ Initializing vault...\n  → Creating encrypted database...\n  → Generating cryptographic salt...\n\nEnter passphrase: ••••••••••••••••\nConfirm: ••••••••••••••••\n\n  → Key derivation (Argon2id)... done\n  → HKDF key hierarchy derived\n  → Database encrypted (SQLCipher)\n\n✓ Vault initialized.',delay:2800},
+{cmd:'$ hermetic add "gemini_key"',out:'Enter secret value: ••••••••••••••••••••••••\n\n  → Per-secret key derived (HKDF)\n  → Encrypting with AES-256-GCM\n  → Committed to encrypted database\n  → Key material zeroized ✓\n\n✓ Secret "gemini_key" stored.',delay:1800},
+{cmd:'$ hermetic daemon start',out:'🔒 Starting hermetic-daemon...\n\n  → Memory locking (mlockall)... ✓\n  → Syscall sandbox (seccomp)... ✓\n  → Debug attach disabled... ✓\n  → Unix socket created... ✓\n  → Caller verification enabled... ✓\n  → Wire protocol ready\n  → MCP bridge ready\n\n✓ Daemon listening. Hermetic seal active.',delay:3200}
+];
+const WIRE_FRAMES=[
+  {label:'REQUEST',step:'Agent → MCP',desc:'Agent sends secret name and target URL. No value crosses boundary.',flow:[['p','🤖 Agent'],['→'],['c','🔌 MCP']],json:'// Agent sends:\\n//   → Secret name (string)\\n//   → Target URL\\n//   → HTTP method\\n// The secret VALUE never appears.',explain:'Length-prefixed JSON-RPC 2.0 framing. Only the secret NAME crosses the agent boundary.'},
+  {label:'HANDLE',step:'MCP → Daemon',desc:'Multi-check validation → opaque 256-bit handle issued.',flow:[['c','🔌 MCP'],['→'],['s','🏛 Daemon'],['→'],['g','🎟 Handle']],json:'// Daemon validates:\\n//   UID binding, secret existence,\\n//   URL policy, SSRF, method whitelist\\n// Returns: 256-bit opaque handle\\n// Or: uniform denial',explain:'Handle is pure random bytes from CSPRNG. Zero information about the secret. UID-bound, time-limited.'},
+  {label:'REDEEM',step:'Atomic Consumption',desc:'Handle atomically consumed, secret decrypted, injected, zeroized.',flow:[['r','🔑 ~200ms'],['→'],['c','🌐 TLS'],['→'],['p','✨ API']],json:'// 1. Handle atomically consumed\\n// 2. Validate caller + TTL + domain\\n// 3. Decrypt via key hierarchy\\n// 4. Inject into HTTPS request\\n// 5. Zeroize all key material',explain:'Consumption is atomic and irreversible. Even daemon crashes leave handle consumed.'},
+  {label:'DENIAL',step:'Uniform Response',desc:'All denials byte-identical. Zero information leakage.',flow:[['r','🚫'],['='],['r','🚫'],['='],['r','🚫']],json:'// Every denial produces identical output:\\n//   Wrong handle  → same response\\n//   Expired       → same response\\n//   Wrong caller  → same response\\n// Attacker cannot distinguish.',explain:'Information control: attacker cannot distinguish failure modes. Verified byte-identical.'}
+];
+const THREAT_TYPES=[{id:'ssrf',name:'SSRF Injection',desc:'Redirect to internal IPs',layers:['Transport','IP Validation','DNS Defense','Range Blocking'],defense:['Protocol enforcement rejects non-TLS','IP literal requests blocked','DNS rebinding detected via dual resolution','Private address ranges blocked']},{id:'brute',name:'Handle Brute Force',desc:'Guess 256-bit handle IDs',layers:['Entropy','Info Control','Rate Limit'],defense:['256-bit CSPRNG keyspace','All denials byte-identical','Per-caller handle cap enforced']},{id:'replay',name:'Double Spend',desc:'Reuse consumed handle',layers:['Atomic Consume','Serialization'],defense:['Handle consumed before validation','All access serialized']},{id:'seal',name:'Seal Bypass',desc:'Operate after vault sealed',layers:['State Check','Key Drop','Memory Wipe'],defense:['Sealed state denies all operations','Master key permanently dropped','Memory zeroized on drop']},{id:'mitm',name:'Network Intercept',desc:'Intercept secret in transit',layers:['TLS','Process Isolation','Memory Lock','Zeroize'],defense:['HTTPS enforced for all transport','Process boundary isolation','RAM-locked memory','Zeroizing drop on all keys']},{id:'flood',name:'Resource Exhaustion',desc:'Exhaust handles/connections',layers:['Handle Cap','TTL Sweep','Frame Limit','Timeouts'],defense:['Per-caller handle limit','Time-limited handles','Frame size enforced','I/O timeouts']}];
+const RT_CAMPAIGNS=[{name:'Gauntlet',vectors:42,type:'Automated',breaches:0,outcome:'Baseline established',model:'AI Architect',color:'blue'},{name:'Nightbreaker',vectors:38,type:'Targeted',breaches:0,outcome:'Crypto chain verified',model:'AI Auditor',color:'purple'},{name:'Supernova',vectors:94,type:'FAANG-level',breaches:0,outcome:'0 breaches across 94 vectors',model:'AI Architect',color:'gold'},{name:'Gemini Assault',vectors:116,type:'External model',breaches:3,outcome:'HC-7, HC-8 added — then fixed',model:'External AI Auditor',color:'red'},{name:'Oblivion',vectors:5,type:'Runtime exploit',breaches:0,outcome:'Fail-closed confirmed',model:'External AI Auditor',color:'cyan'}];
+const RT_SUPERNOVA_PHASES=[{phase:'Memory Safety',vectors:8,breaches:0},{phase:'Cryptographic Integrity',vectors:12,breaches:0},{phase:'Information Leakage',vectors:8,breaches:0},{phase:'State Machine',vectors:10,breaches:0},{phase:'Wire Protocol',vectors:9,breaches:0},{phase:'Governance & Hashes',vectors:8,breaches:0},{phase:'Supply Chain',vectors:7,breaches:0},{phase:'Deployment Hardening',vectors:8,breaches:0},{phase:'Concurrency & Races',vectors:6,breaches:0},{phase:'Access Control & Exotic',vectors:18,breaches:0}];
+const RT_SCORE_EVOLUTION=[
+{metric:'Gauntlet (42 vectors)',breach:0,critical:0,high:0,hardened:42,realVulns:0},
+{metric:'Nightbreaker (38 vectors)',breach:0,critical:0,high:0,hardened:38,realVulns:0},
+{metric:'Supernova Raw (94 vectors)',breach:5,critical:3,high:8,hardened:32,realVulns:0},
+{metric:'Supernova Corrected',breach:0,critical:0,high:0,hardened:91,realVulns:0},
+{metric:'Gemini Assault (116 vectors)',breach:1,critical:2,high:4,hardened:109,realVulns:3},
+{metric:'Post-Fix (HC-7, HC-8, URL)',breach:0,critical:0,high:0,hardened:116,realVulns:0},
+{metric:'Oblivion (5 vectors)',breach:0,critical:1,high:0,hardened:4,realVulns:0},
+{metric:'Post-HC-9',breach:0,critical:0,high:0,hardened:5,realVulns:0}
+];
+const RT_FINDINGS=[{id:'HC-7',title:'Request Header Manipulation',severity:'HIGH',fix:'15 min',discovery:'Gemini 2.5 Pro',attack:'Agent-controlled headers manipulating upstream routing',defense:'Header sanitization layer added (10 forbidden headers)'},{id:'HC-8',title:'Subprocess Injection Vector',severity:'CRITICAL',fix:'30 min',discovery:'Gemini 2.5 Pro',attack:'Agent commands resolving to interpreters for exfiltration',defense:'25-entry shell blocklist + configurable command whitelist'},{id:'HC-7-URL',title:'URL Credential Confusion',severity:'MEDIUM',fix:'10 min',discovery:'Gemini Assault scanner',attack:'Malformed URL with embedded credentials',defense:'Credential rejection in initial URL parsing'}];
+const FUZZ_DATA=[{name:'Wire Protocol',execs:998,crate:'daemon',edges:27,corpus:6},{name:'Handle Lifecycle',execs:161,crate:'daemon',edges:1673,corpus:1842},{name:'JSON Request',execs:133,crate:'daemon',edges:1609,corpus:1892},{name:'MCP Store Secret',execs:51,crate:'mcp',edges:1272,corpus:1414},{name:'MCP JSON-RPC',execs:23,crate:'mcp',edges:1103,corpus:2507},{name:'Domain Normalization',execs:20,crate:'core',edges:280,corpus:482},{name:'Auth Scheme Parse',execs:13,crate:'daemon',edges:941,corpus:74},{name:'Socket Lifecycle',execs:0.004,crate:'daemon',edges:289,corpus:27},{name:'Domain Matching',execs:0.001,crate:'daemon',edges:3069,corpus:63}];
+const COMPETITORS=[{name:'Hermetic',color:'cyan',zk:true,handles:true,mcp:true,fuzz:true,ssrf:true,peer:true,ttl:true,domain:true,envSpawn:true},{name:'Tool A',color:'gold',zk:false,handles:false,mcp:true,fuzz:false,ssrf:false,peer:false,ttl:true,domain:false,envSpawn:false},{name:'Tool B',color:'orange',zk:false,handles:false,mcp:true,fuzz:false,ssrf:false,peer:false,ttl:false,domain:false,envSpawn:false},{name:'Tool C',color:'purple',zk:false,handles:false,mcp:false,fuzz:false,ssrf:false,peer:false,ttl:false,domain:false,envSpawn:true},{name:'Tool D',color:'blue',zk:false,handles:false,mcp:false,fuzz:false,ssrf:false,peer:false,ttl:false,domain:false,envSpawn:false}];
+const COMP_FEATURES=[{key:'zk',name:'Zero-Knowledge'},{key:'handles',name:'Opaque Handles'},{key:'mcp',name:'MCP Native'},{key:'fuzz',name:'Fuzz Testing'},{key:'ssrf',name:'SSRF Defense'},{key:'peer',name:'SO_PEERCRED'},{key:'ttl',name:'Handle TTL'},{key:'domain',name:'Domain Binding'},{key:'envSpawn',name:'Env Spawn'}];
+const PRICING=[
+  {tier:'community',name:'Community',price:'0',period:'',sub:'Free forever · AGPL v3',c:'blue',cta:'Get Started',features:[{g:'FULL V1 DAEMON',items:['AES-256-GCM + Argon2id + HKDF','Opaque handle protocol (CC-1)','5 MCP tools','Unlimited secrets','All HC-1→HC-10 protections']},{g:'LIMITS (CL-1/2/3)',items:['1 named environment','7-day audit log retention','Community banner']},{g:'LICENSE',items:['AGPL v3 open source','Full security model','Modify + self-host free']}]},
+  {tier:'individual',name:'Individual',price:'149',period:'/year',sub:'AGPL waiver · 1 developer',c:'gold',popular:true,cta:'Buy License',features:[{g:'AGPL OBLIGATIONS WAIVED',items:['Use in closed-source products','Run modified as service','No source disclosure']},{g:'OPERATIONAL',items:['3 environments','30-day audit retention','No community banner','Email support (48hr)']},{g:'EXTRAS',items:['Priority CVE notifications','Signed binary builds']}]},
+  {tier:'team',name:'Team',price:'499',period:'/year',sub:'Up to 10 developers',c:'purple',cta:'Buy License',features:[{g:'EVERYTHING IN INDIVIDUAL +',items:['10 developers, 1 org','10 environments','90-day audit retention']},{g:'SUPPORT',items:['24hr email support','Onboarding guide']},{g:'FUTURE (V2)',items:['V2 Gatekeeper access','Network mode','Centralized audit']}]},
+  {tier:'enterprise',name:'Enterprise',price:'Custom',period:'',sub:'Starting at $2,000/year',c:'cyan',cta:'Contact Us',features:[{g:'EVERYTHING IN TEAM +',items:['Unlimited developers','Unlimited environments','1-year audit retention']},{g:'COMPLIANCE (V2+)',items:['HSM / TPM integration','Approval workflows','SOC 2 evidence packages','Custom SLA']},{g:'RELATIONSHIP',items:['Indemnification','Named audit reports','Direct maintainer access']}]}
+];
+
+
+// ═══ UTILITY COMPONENTS ═══
+function Card({children,style,onClick,className,bloom}){return<div className={'crd '+(bloom||'')+' '+(className||'')}style={{padding:20,...style}}onClick={onClick}>{children}</div>}
+function SH({label,labelColor,title,subtitle}){return<div className="sec-hd anim-up"><div className="sec-label"style={{color:'var(--'+labelColor+')'}}>{label}</div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div>}
+function Badge({children,color}){return<span className="tag"style={{borderColor:'var(--'+color+')40',color:'var(--'+color+')',background:'var(--g-'+color+')'}}>{children}</span>}
+function CodeBlock({header,sub,children}){return<div className="code-blk"><div className="code-hd"><span>{header}</span>{sub&&<span>{sub}</span>}</div><div className="code-bd"dangerouslySetInnerHTML={{__html:children}}/></div>}
+function FlowRow({items}){return<div className="flow">{items.map((it,i)=>{if(typeof it==='string')return<span key={i}className="farw">{it.length>3?it:'→'}</span>;const cls={p:'fbx-p',s:'fbx-s',c:'fbx-c',r:'fbx-r',g:'fbx-g',o:'fbx-o'}[it[0]]||'fbx-p';return<span key={i}className={'fbx '+cls}>{it[1]}</span>})}</div>}
+function Tip({id,children,info}){const text=info||TIPS[id]||id;return<span className="tip"style={{color:'inherit'}}>{children||id}<span className="tip-box">{text}</span></span>}
+function Shimmer(){return<div className="shimmer-line"/>}
+function StatGrid({items}){return<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))',gap:10}}>{items.map((s,i)=><Card key={i}bloom="bloom"style={{textAlign:'center',padding:16}}><div style={{fontSize:28,fontWeight:800,color:'var(--'+s.c+')'}}>{s.n}</div><div style={{fontFamily:'var(--mn)',fontSize:14,color:'var(--t2)',marginTop:4}}>{s.l}</div></Card>)}</div>}
+
+// ═══ HERO — v3 design, logo in seal, zeroize animation ═══
+function Hero({navTo}){
+  const[step,setStep]=useState(0);
+  const[zeroizing,setZeroizing]=useState(false);
+  useEffect(()=>{const iv=setInterval(()=>setStep(p=>{const next=(p+1)%6;if(next===4)setZeroizing(true);return next}),2200);return()=>clearInterval(iv)},[]);
+  useEffect(()=>{if(zeroizing){const t=setTimeout(()=>setZeroizing(false),1200);return()=>clearTimeout(t)}},[zeroizing]);
+  const phases=[{lbl:'DISCOVER',desc:'Agent reads SKILL.md, learns 5 MCP tools',c:'blue'},{lbl:'REQUEST',desc:'Agent sends secret NAME via stdio (never value)',c:'cyan'},{lbl:'VALIDATE',desc:'Daemon: 6-check validation → 256-bit handle',c:'green'},{lbl:'INJECT',desc:'Secret decrypted, injected into HTTPS (~200ms)',c:'gold'},{lbl:'ZEROIZE',desc:'Secret wiped from memory. Handle consumed.',c:'red'},{lbl:'RESPOND',desc:'API response returns. Agent never saw the key.',c:'green'}];
+  return(
+    <div style={{textAlign:'center',padding:'72px 0 48px'}}>
+      
+      <div className="anim-up" style={{marginBottom:24}}><img src={HERO_LOGO} alt="Hermetic" style={{height:60,objectFit:'contain'}} /></div>
+      <h1 className="anim-up d1" style={{fontSize:'clamp(32px,5vw,56px)',fontWeight:800,letterSpacing:'-1px',lineHeight:1.1,marginBottom:18,background:'linear-gradient(135deg,#fff 0%,#b8bfd6 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Zero-Knowledge<br/>Credential Broker</h1>
+      <p className="anim-up d2" style={{fontSize:20,color:'var(--t2)',maxWidth:680,margin:'0 auto 32px',lineHeight:1.7}}>Open-source credential broker for AI agents. Your secrets never cross the trust boundary. AGPL v3 dual-licensed. Adversarially validated. Built in Rust.</p>
+      {/* Pipeline flow diagram */}
+      <div className="anim-up d3" style={{maxWidth:820,margin:'0 auto 40px'}}>
+        <Card style={{padding:'28px 20px',borderColor:'var(--bdr-g)'}} className='gradient-border'>
+          <div style={{display:'flex',alignItems:'stretch',justifyContent:'space-between',gap:10,position:'relative'}}>
+            <div style={{flex:'0 0 110px',textAlign:'center',opacity:step<2?1:0.45,transition:'all 0.5s',transform:step===1?'scale(1.05)':''}}>
+              <div style={{fontSize:36,marginBottom:6}}>🤖</div>
+              <div style={{fontFamily:'var(--mn)',fontSize:14,color:'var(--blue)',fontWeight:700}}>AI AGENT</div>
+              <div style={{fontSize:13,color:'var(--t3)',marginTop:3}}>sees names only</div>
+              <div style={{fontSize:13,color:'var(--t3)'}}>never sees keys</div>
+            </div>
+            <div style={{flex:1,display:'flex',flexDirection:'column',justifyContent:'center',gap:4,minWidth:40}}>
+              <div style={{fontFamily:'var(--mn)',fontSize:12,color:step===1?'var(--blue)':'var(--t3)',textAlign:'center',transition:'color 0.5s'}}>"gemini_key"</div>
+              <div style={{height:2,background:step===1?'var(--blue)':step===5?'var(--green)':'var(--bdr)',transition:'background 0.5s',borderRadius:1}}/>
+              <div style={{fontFamily:'var(--mn)',fontSize:12,color:step===5?'var(--green)':'var(--t3)',textAlign:'center',transition:'color 0.5s'}}>← response</div>
+            </div>
+            {/* HERMETIC SEAL — original logo as lock */}
+            <div style={{flex:'0 0 140px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+              <div className={step===4&&zeroizing?'seal-zeroize':''} style={{width:80,height:80,borderRadius:16,border:'2px solid var(--red)',background:step===3?'var(--g-gold)':step===4?'rgba(255,76,106,0.2)':'var(--g-red)',display:'grid',placeItems:'center',transition:'all 0.5s',boxShadow:step===3?'0 0 36px rgba(255,209,102,0.3)':step===4?'0 0 36px rgba(255,76,106,0.4)':'0 0 20px rgba(255,76,106,0.12)',marginBottom:6,overflow:'hidden'}}>
+                <img src={HERMETIC_ICON} alt="" style={{width:64,height:64,objectFit:'contain',filter:step===3?'invert(1) brightness(1.5) drop-shadow(0 0 12px rgba(255,209,102,0.8))':step===4?'invert(1) brightness(0.2) saturate(0)':'invert(1) brightness(0.85) drop-shadow(0 0 6px rgba(255,76,106,0.4))',transition:'all 0.6s ease',opacity:step===4&&zeroizing?0.1:1,transform:step===3?'scale(1.1)':step===4?'scale(0.85)':'scale(1)',animation:step<3||step>4?'sealFloat 4s ease-in-out infinite':'none'}}/>
+              </div>
+              <div style={{fontFamily:'var(--mn)',fontSize:13,fontWeight:700,color:'var(--red)',letterSpacing:1}}>HERMETIC SEAL</div>
+              <div style={{fontSize:13,color:'var(--t3)',marginTop:2}}>{step===3?'decrypting...':step===4?'⚡ ZEROIZING':'sealed boundary'}</div>
+            </div>
+            <div style={{flex:1,display:'flex',flexDirection:'column',justifyContent:'center',gap:4,minWidth:40}}>
+              <div style={{fontFamily:'var(--mn)',fontSize:12,color:step===3?'var(--gold)':'var(--t3)',textAlign:'center',transition:'color 0.5s'}}>Authorization: Bearer [...]</div>
+              <div style={{height:2,background:step===3?'var(--gold)':'var(--bdr)',transition:'background 0.5s',borderRadius:1}}/>
+              <div style={{fontFamily:'var(--mn)',fontSize:12,color:'var(--t3)',textAlign:'center'}}>HTTPS only</div>
+            </div>
+            <div style={{flex:'0 0 110px',textAlign:'center',opacity:step>=3&&step<=5?1:0.45,transition:'all 0.5s'}}>
+              <div style={{fontSize:36,marginBottom:6}}>✨</div>
+              <div style={{fontFamily:'var(--mn)',fontSize:14,color:'var(--cyan)',fontWeight:700}}>EXTERNAL API</div>
+              <div style={{fontSize:13,color:'var(--t3)',marginTop:3}}>TLS encrypted</div>
+              <div style={{fontSize:13,color:'var(--t3)'}}>SSRF protected</div>
+            </div>
+          </div>
+          <div style={{display:'flex',justifyContent:'center',gap:6,marginTop:22,flexWrap:'wrap'}}>
+            {phases.map((p,i)=><div key={i}style={{padding:'5px 12px',borderRadius:100,fontFamily:'var(--mn)',fontSize:13,fontWeight:600,background:step===i?'var(--g-'+p.c+')':'transparent',color:step===i?'var(--'+p.c+')':'var(--t3)',border:'1px solid '+(step===i?'var(--'+p.c+')30':'transparent'),transition:'all 0.3s'}}>{p.lbl}</div>)}
+          </div>
+        </Card>
+      </div>
+      {/* Quick info cards */}
+      <div className="anim-up d4" style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:10,maxWidth:820,margin:'0 auto 36px'}}>
+        {[{t:'Double Encrypted',d:'AES-256-GCM + SQLCipher',c:'gold'},{t:'CC-1 Atomic',d:'Consumed before validated',c:'green'},{t:'SSRF Protected',d:'Multi-layer DNS defense',c:'red'},{t:'Zeroized',d:'Wiped on drop. Compiler-enforced.',c:'cyan'}].map((c,i)=><Card key={i}bloom="bloom"style={{padding:16,textAlign:'center',borderTop:'2px solid var(--'+c.c+')'}}><div style={{fontSize:16,fontWeight:700,color:'var(--'+c.c+')'}}>{c.t}</div><div style={{fontSize:14,color:'var(--t2)',marginTop:4}}>{c.d}</div></Card>)}
+      </div>
+      {/* Stats */}
+      <div className="anim-up d5" style={{display:'flex',justifyContent:'center',gap:32,flexWrap:'wrap',marginBottom:40}}>
+        {[{n:'548',l:'Tests',c:'green'},{n:'1.6B',l:'Fuzz Execs',c:'cyan'},{n:'5',l:'Campaigns',c:'red'},{n:'36',l:'Invariants',c:'gold'},{n:'0',l:'Breaches',c:'green'}].map((s,i)=>
+          <div key={i}><div style={{fontSize:32,fontWeight:800,color:'var(--'+s.c+')'}}>{s.n}</div><div style={{fontFamily:'var(--mn)',fontSize:14,color:'var(--t2)',marginTop:4,letterSpacing:1}}>{s.l}</div></div>
+        )}
+      </div>
+      {/* Section nav */}
+      <div style={{paddingTop:28,borderTop:'1px solid rgba(255,255,255,0.12)'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:12,maxWidth:720,margin:'0 auto'}}>
+          {SECTIONS.map(s=>(
+            <button key={s.id} onClick={()=>navTo(s.id)} style={{display:'block',width:'100%',textAlign:'left',padding:'16px',borderRadius:10,cursor:'pointer',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',transition:'all 0.2s',fontFamily:'var(--hd)'}}>
+              <div style={{fontSize:24,marginBottom:6}}>{s.icon}</div>
+              <div style={{fontSize:16,fontWeight:700,color:'var(--t1)',marginBottom:4}}>{s.name}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══ GET STARTED — Terminal, Architecture (v3), Pipeline (v3) ═══
+function GetStartedSection(){
+  const[tab,setTab]=useState(0);
+  const tabs=['Terminal','Architecture','Pipeline'];
+  const[cmdIdx,setCmdIdx]=useState(0);const[typing,setTyping]=useState('');const[output,setOutput]=useState([]);const[running,setRunning]=useState(false);const[auto,setAuto]=useState(true);const termRef=useRef(null);
+  const typeCmd=(idx)=>{if(idx>=SETUP_CMDS.length||running)return;setRunning(true);const cmd=SETUP_CMDS[idx];let ci=0;setTyping('');const iv=setInterval(()=>{ci++;setTyping(cmd.cmd.slice(0,ci));if(ci>=cmd.cmd.length){clearInterval(iv);setTimeout(()=>{setOutput(o=>[...o,{cmd:cmd.cmd,out:cmd.out}]);setTyping('');setCmdIdx(idx+1);setRunning(false)},cmd.delay)}},30)};
+  useEffect(()=>{if(tab===0&&auto&&!running&&cmdIdx<SETUP_CMDS.length)typeCmd(cmdIdx)},[auto,running,cmdIdx,tab]);
+  useEffect(()=>{if(termRef.current)termRef.current.scrollTop=termRef.current.scrollHeight},[output,typing]);
+  // Wire protocol state
+
+  // Pipeline state
+  const[expanded,setExpanded]=useState(null);const[revealed,setRevealed]=useState(0);
+  useEffect(()=>{if(tab===2){setRevealed(0);const iv=setInterval(()=>setRevealed(p=>p<8?p+1:p),250);return()=>clearInterval(iv)}},[tab]);
+  const pipeSteps=[
+    {n:0,lbl:'SETUP',ttl:'Human Stores Secret',c:'purple',icon:'🔐',desc:'Vault initialized. Argon2id → HKDF → AES-256-GCM → SQLCipher.',code:{h:'Terminal',b:'<span class="c">$</span> <span class="n">hermetic init</span> <span class="v">--mode software</span>\n<span class="c">  ✓ Vault initialized</span>\n<span class="c">$</span> <span class="n">hermetic add</span> <span class="s">"gemini_key"</span>\n<span class="c">  ✓ Encrypted → AES-256-GCM → SQLCipher</span>'}},
+    {n:1,lbl:'DISCOVER',ttl:'Agent Reads SKILL.md',c:'blue',icon:'📋',desc:'5 MCP tools discovered. Agent learns to call by name.'},
+    {n:2,lbl:'REQUEST',ttl:'Name Sent (No Secret)',c:'cyan',icon:'📤',desc:'JSON-RPC over stdio. Secret name + URL. Key never in agent memory.',code:{h:'JSON-RPC 2.0',b:'{ <span class="k">"method"</span>: <span class="s">"tools/call"</span>,\n  <span class="k">"params"</span>: { <span class="v">"name"</span>: <span class="s">"..."</span>,\n    <span class="v">"secret_name"</span>: <span class="s">"gemini_key"</span> } }'}},
+    {n:3,lbl:'VALIDATE',ttl:'6-Check → Handle Issued',c:'green',icon:'✅',desc:'HTTPS · No creds · No IP literal · Method whitelist · Domain · Exists.',code:{h:'6 checks',b:'<span class="g">✓</span> HTTPS  <span class="g">✓</span> No creds  <span class="g">✓</span> No IP  <span class="g">✓</span> Method  <span class="g">✓</span> Domain  <span class="g">✓</span> Exists\n<span class="k">→ Handle:</span> <span class="n">[256-bit opaque token]</span>'}},
+    {n:4,lbl:'REDEEM',ttl:'Atomic Consume (CC-1)',c:'orange',icon:'⚡',desc:'Atomic consumption first. Then validate. Then decrypt. Double-spend impossible.',code:{h:'CC-1',b:'<span class="g">1.</span> handle <span class="r">consumed</span>        <span class="c">← IRREVERSIBLE</span>\n<span class="g">2.</span> caller check  <span class="s">✓</span>\n<span class="g">3.</span> TTL check     <span class="s">✓</span>\n<span class="g">4.</span> decrypt       <span class="c">← key hierarchy</span>\n<span class="g">5.</span> <span class="r">zeroize</span>       <span class="c">← wiped</span>'}},
+    {n:5,lbl:'TRANSPORT',ttl:'Secret → HTTPS → Zeroize',c:'gold',icon:'🌐',desc:'SSRF-validated. Multi-layer defense. DNS rebinding defense. ~200ms then zeroized.'},
+    {n:6,lbl:'RESPONSE',ttl:'Result Returns (Secret-Free)',c:'green',icon:'📥',desc:'API response flows back. No secret in return chain.',code:{h:'Agent receives',b:'{ <span class="k">"status"</span>: <span class="n">200</span>, <span class="k">"body"</span>: <span class="s">"Success"</span> }\n<span class="c">Agent never touched the key.</span>'}},
+    {n:'✓',lbl:'PROOF',ttl:'Zero-Knowledge Verified',c:'red',icon:'🛡️',desc:'Agent completed authenticated API call without seeing the secret.',proof:[{i:'🚫',t:'API Key',c:'red'},{i:'🚫',t:'Handle Data',c:'red'},{i:'🚫',t:'Enc Keys',c:'red'},{i:'✅',t:'One-Time',c:'green'},{i:'✅',t:'UID Bound',c:'green'},{i:'✅',t:'Zeroized',c:'green'}]}
+  ];
+  return(<div className="sec">
+    <SH label="Get Started" labelColor="green" title="5 Minutes to Working" subtitle="Install, configure, and connect your AI agent to a zero-knowledge credential broker."/>
+    <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}>
+      <a href="https://github.com/hermetic-sys/hermetic" target="_blank" rel="noopener" style={{display:'inline-flex',alignItems:'center',gap:8,padding:'10px 18px',borderRadius:8,background:'rgba(255,255,255,0.06)',border:'1px solid var(--bdr)',color:'var(--t1)',textDecoration:'none',fontFamily:'var(--mn)',fontSize:14,fontWeight:600,transition:'all 0.2s'}} className="bloom">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'10px 18px',borderRadius:8,background:'rgba(62,221,138,0.08)',border:'1px solid rgba(62,221,138,0.3)',fontFamily:'var(--mn)',fontSize:14,color:'var(--green)'}}>
+        <span style={{color:'var(--t3)'}}>$</span> cargo install hermetic
+      </div>
+    </div>
+    <div className="sub-tabs">{tabs.map((t,i)=><button key={i}className={'sub-tab'+(tab===i?' active':'')}onClick={()=>setTab(i)}>{t}</button>)}</div>
+    {tab===0&&<Card style={{padding:0,overflow:'hidden',background:'#0d0e14',border:'1px solid var(--bdr)'}}>
+      <div style={{padding:'10px 14px',borderBottom:'1px solid var(--bdr)',display:'flex',alignItems:'center',gap:8}}>
+        <div style={{display:'flex',gap:5}}><span style={{width:10,height:10,borderRadius:'50%',background:'#ff4c6a'}}/><span style={{width:10,height:10,borderRadius:'50%',background:'#ffd166'}}/><span style={{width:10,height:10,borderRadius:'50%',background:'#3edd8a'}}/></div>
+        <span style={{fontFamily:'var(--mn)',fontSize:13,color:'var(--t3)',flex:1,textAlign:'center'}}>hermetic</span>
+        <button className="bloom" onClick={()=>{if(!running&&cmdIdx<SETUP_CMDS.length)typeCmd(cmdIdx)}} disabled={running||cmdIdx>=SETUP_CMDS.length} style={{padding:'5px 12px',fontSize:13,fontFamily:'var(--mn)',fontWeight:600,border:'1px solid var(--bdr)',color:'var(--t2)',borderRadius:6,cursor:'pointer',background:'transparent'}}>STEP</button>
+        <label style={{display:'flex',alignItems:'center',gap:4,cursor:'pointer',fontSize:13,color:'var(--t3)',fontFamily:'var(--mn)'}}><input type="checkbox" checked={auto} onChange={e=>setAuto(e.target.checked)} style={{accentColor:'var(--green)'}}/> AUTO</label>
+      </div>
+      <div ref={termRef} style={{padding:16,fontFamily:'var(--mn)',fontSize:14,lineHeight:1.8,maxHeight:440,overflowY:'auto',color:'var(--t2)'}}>
+        {output.map((o,i)=><div key={i}><div style={{color:'var(--green)'}}>{o.cmd}</div><div style={{whiteSpace:'pre-wrap',marginBottom:12,opacity:0.8}}>{o.out}</div></div>)}
+        {typing&&<div style={{color:'var(--green)'}}>{typing}<span style={{animation:'blink 1s step-end infinite'}}>█</span></div>}
+        {!running&&cmdIdx<SETUP_CMDS.length&&!typing&&<div style={{color:'var(--t3)'}}>$ <span style={{animation:'blink 1s step-end infinite'}}>█</span></div>}
+        {cmdIdx>=SETUP_CMDS.length&&!running&&<div style={{marginTop:8,padding:'10px 14px',background:'var(--g-green)',borderRadius:6,color:'var(--green)',fontSize:15}}>✓ Setup complete. Daemon listening. Hermetic seal active.</div>}
+      </div>
+    </Card>}
+    {tab===1&&<div>
+      {/* v3 Architecture — 4 trust zones with hermetic seal boundary */}
+      {[{name:'AI Agent',icon:'🤖',zone:'AGENT ZONE (UNTRUSTED)',desc:'Makes API calls by secret name via stdio. Receives responses. Never touches secrets.',sees:'🚫 NEVER sees secrets',sc:'red',c:'blue'},
+        {name:'MCP Bridge',icon:'🔌',zone:'MCP ZONE (ORCHESTRATOR)',desc:'5 tools over stdio. Routes handle requests. Secret exists ~200ms during HTTPS, then zeroized.',sees:'⏱ ~200ms then zeroized',sc:'gold',c:'cyan'}
+      ].map((l,i)=>(
+        <React.Fragment key={i}>
+          <Card bloom={'bloom bloom-'+({blue:'blue',cyan:'cyan'}[l.c])} style={{marginBottom:0,borderLeft:'4px solid var(--'+l.c+')',padding:'18px 22px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center'}}>
+              <div><div style={{fontFamily:'var(--mn)',fontSize:12,letterSpacing:2,color:'var(--t3)',marginBottom:4}}>{l.zone}</div><div style={{fontSize:20,fontWeight:700,color:'var(--'+l.c+')',marginBottom:4}}>{l.icon} {l.name}</div><div style={{fontSize:16,color:'var(--t2)'}}>{l.desc}</div></div>
+              <div style={{fontFamily:'var(--mn)',fontSize:14,padding:'6px 14px',borderRadius:6,background:'var(--g-'+l.sc+')',color:'var(--'+l.sc+')',border:'1px solid var(--'+l.sc+')30',whiteSpace:'nowrap'}}>{l.sees}</div>
+            </div>
+          </Card>
+          {i===0&&<div style={{textAlign:'center',padding:'4px 0',fontFamily:'var(--mn)',fontSize:14,color:'var(--t3)'}}>▼ stdio (JSON-RPC 2.0) ▼</div>}
+        </React.Fragment>
+      ))}
+      <div style={{textAlign:'center',fontFamily:'var(--mn)',fontSize:15,fontWeight:800,letterSpacing:3,color:'var(--red)',padding:'16px 0',margin:'8px 0',borderTop:'3px dashed var(--red)',borderBottom:'3px dashed var(--red)',background:'var(--g-red)'}}>
+        ⛔ HERMETIC SEAL — ZERO-KNOWLEDGE BOUNDARY ⛔
+      </div>
+      <div style={{textAlign:'center',fontFamily:'var(--mn)',fontSize:14,color:'var(--t3)',padding:'2px 0 8px'}}>Secrets exist below this line only.</div>
+      <div style={{textAlign:'center',padding:'4px 0',fontFamily:'var(--mn)',fontSize:14,color:'var(--t3)'}}>▼ Unix Domain Socket (SO_PEERCRED, 0600) ▼</div>
+      {[{name:'Daemon',icon:'🏛',zone:'DAEMON ZONE (ENFORCER)',desc:'Memory-locked (mlockall). Enforces all security policy. Single-threaded accept. seccomp sandboxed.',sees:'🔒 Protected in locked RAM',sc:'green',c:'orange'},
+        {name:'Vault Core',icon:'🔐',zone:'VAULT CORE (INNERMOST)',desc:'Argon2id → HKDF → AES-256-GCM → SQLCipher. Double-encrypted at rest. No Clone, no Debug.',sees:'🔒 Double-encrypted',sc:'green',c:'purple'}
+      ].map((l,i)=>(
+        <React.Fragment key={i}>
+          <Card bloom={'bloom bloom-'+({orange:'gold',purple:'purple'}[l.c])} style={{marginBottom:0,borderLeft:'4px solid var(--'+l.c+')',padding:'18px 22px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center'}}>
+              <div><div style={{fontFamily:'var(--mn)',fontSize:12,letterSpacing:2,color:'var(--t3)',marginBottom:4}}>{l.zone}</div><div style={{fontSize:20,fontWeight:700,color:'var(--'+l.c+')',marginBottom:4}}>{l.icon} {l.name}</div><div style={{fontSize:16,color:'var(--t2)'}}>{l.desc}</div></div>
+              <div style={{fontFamily:'var(--mn)',fontSize:14,padding:'6px 14px',borderRadius:6,background:'var(--g-'+l.sc+')',color:'var(--'+l.sc+')',border:'1px solid var(--'+l.sc+')30',whiteSpace:'nowrap'}}>{l.sees}</div>
+            </div>
+          </Card>
+          {i===0&&<div style={{textAlign:'center',padding:'4px 0',fontFamily:'var(--mn)',fontSize:14,color:'var(--t3)'}}>▼ HKDF per-secret KEK ▼</div>}
+        </React.Fragment>
+      ))}
+    </div>}
+    {tab===2&&<div>
+      {/* v3 Pipeline — vertical step-through */}
+      {pipeSteps.map((s,idx)=>(
+        <div key={idx} className="step" style={{opacity:idx<=revealed?1:0.1,transition:'all 0.5s'}}>
+          <div className="step-marker">
+            <div className="step-num bloom"style={{borderColor:'var(--'+s.c+')',color:'var(--'+s.c+')',background:'var(--g-'+s.c+')'}}>{s.icon}</div>
+            {idx<pipeSteps.length-1&&<div className="step-line"style={{background:'linear-gradient(to bottom,var(--'+s.c+'),var(--'+s.c+')30)'}}/>}
+          </div>
+          <div className="step-body">
+            <div className="step-lbl"style={{color:'var(--'+s.c+')'}}>{s.lbl}</div>
+            <div className="step-ttl bloom"style={{display:'inline-block',cursor:s.detail?'pointer':'default',padding:'2px 8px',borderRadius:6,border:'1px solid transparent'}}onClick={()=>s.detail&&setExpanded(expanded===idx?null:idx)}>{s.ttl}</div>
+            <div className="step-desc">{s.desc}</div>
+            {s.code&&<CodeBlock header={s.code.h}>{s.code.b}</CodeBlock>}
+            {s.proof&&<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(90px,1fr))',gap:8}}>{s.proof.map((p,j)=><Card key={j}bloom="bloom"style={{textAlign:'center',padding:12}}><div style={{fontSize:22}}>{p.i}</div><div style={{fontSize:14,fontWeight:600,color:'var(--'+p.c+')',marginTop:4}}>{p.t}</div></Card>)}</div>}
+          </div>
+        </div>
+      ))}
+    </div>}
+  </div>);
+}
+
+// ═══ DEP GRAPH — v3 force-directed canvas ═══
+function DepGraph(){
+  const[selId,setSelId]=useState(null);
+  const selInv=selId?INV[selId]:null;
+  const selEdges=selId?DEP_EDGES.filter(([a,b])=>a===selId||b===selId):[];
+  const deps=selId?selEdges.map(([a,b])=>a===selId?b:a):[];
+  return(<div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+      {INV_CATS.map(cat=>{
+        const items=Object.entries(INV).filter(([,v])=>v.cat===cat);
+        const c=DEP_CAT_COLORS[cat]||'#4a7cff';
+        return(<Card key={cat} style={{padding:16,borderTop:'3px solid '+c}}>
+          <div style={{fontFamily:'var(--mn)',fontSize:13,fontWeight:700,color:c,marginBottom:10,letterSpacing:1}}>{cat.toUpperCase()} ({items.length})</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+            {items.map(([id])=>{
+              const isActive=selId===id;const isDep=deps.includes(id);
+              return(<div key={id} onClick={()=>setSelId(isActive?null:id)} style={{
+                padding:'5px 10px',borderRadius:6,cursor:'pointer',
+                fontFamily:'var(--mn)',fontSize:13,fontWeight:600,
+                background:isActive?c+'30':isDep?c+'15':'rgba(255,255,255,0.04)',
+                color:isActive||isDep?c:'var(--t2)',
+                border:'1px solid '+(isActive?c:isDep?c+'40':'var(--bdr)'),
+                transition:'all 0.2s'
+              }}>{id}</div>)
+            })}
+          </div>
+        </Card>)
+      })}
+    </div>
+    {selInv&&<Card style={{marginTop:16,borderLeft:'4px solid var(--cyan)',padding:18}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        <div>
+          <div style={{fontFamily:'var(--mn)',fontSize:16,fontWeight:700,color:'var(--cyan)',marginBottom:4}}>{selId}: {selInv.name}</div>
+          <div style={{fontSize:15,color:'var(--t2)',lineHeight:1.6,marginBottom:10}}>{selInv.desc}</div>
+          <div style={{fontSize:13,color:'var(--t3)',fontFamily:'var(--mn)'}}>Category: {selInv.cat}</div>
+        </div>
+        <div>
+          <div style={{fontFamily:'var(--mn)',fontSize:13,fontWeight:600,color:'var(--t3)',marginBottom:8}}>CONNECTED TO ({deps.length})</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+            {deps.map(d=><span key={d} onClick={()=>setSelId(d)} style={{
+              padding:'4px 10px',borderRadius:6,cursor:'pointer',fontFamily:'var(--mn)',fontSize:13,
+              background:'var(--g-cyan)',color:'var(--cyan)',border:'1px solid var(--cyan)30'
+            }}>{d}</span>)}
+          </div>
+        </div>
+      </div>
+    </Card>}
+  </div>)
+}
+
+
+// ═══ SECURITY — Crypto, Invariant Tiles, Governance, Threat, Dep Graph ═══
+function SecuritySection(){
+  const[tab,setTab]=useState(0);const tabs=['Cryptography','36 Invariants','Governance','Threat Lab','Dependencies'];
+  const[threat,setThreat]=useState(null);const[invCat,setInvCat]=useState(null);const[selInv,setSelInv]=useState(null);
+  const THREATS=[{id:'ssrf',name:'SSRF Injection',desc:'Redirect to internal IPs',defense:['Protocol enforcement rejects non-TLS','IP literal requests blocked','DNS rebinding detected via dual resolution','Private address ranges blocked']},{id:'brute',name:'Handle Brute Force',desc:'Guess 256-bit handle IDs',defense:['256-bit CSPRNG keyspace','All denials byte-identical','Per-caller handle cap enforced']},{id:'replay',name:'Double Spend',desc:'Reuse consumed handle',defense:['Handle consumed before validation','All access serialized']},{id:'seal',name:'Seal Bypass',desc:'Operate after vault sealed',defense:['Sealed state denies all operations','Master key permanently dropped','Memory zeroized on drop']},{id:'mitm',name:'Network Intercept',desc:'Intercept secret in transit',defense:['HTTPS enforced for all transport','Process boundary isolation','RAM-locked memory','Zeroizing drop on all keys']},{id:'flood',name:'Resource Exhaustion',desc:'Exhaust connections',defense:['Per-caller handle limit','Time-limited handles with sweep','Maximum frame size enforced','I/O timeouts on all connections']}];
+  return(<div className="sec">
+    <SH label="Security" labelColor="red" title="Defense in Depth" subtitle="Cryptographic primitives, 36 invariants, constitutional governance, and adversarial threat modeling."/>
+    <div className="sub-tabs">{tabs.map((t,i)=><button key={i} className={'sub-tab'+(tab===i?' active':'')} onClick={()=>setTab(i)}>{t}</button>)}</div>
+    {/* CRYPTOGRAPHY */}
+    {tab===0&&<div>
+      <Card style={{marginBottom:16}}>
+        <div style={{fontSize:'1.05rem',fontWeight:700,marginBottom:14}}>Key Derivation Chain</div>
+        <div style={{display:'grid',gap:10}}>
+          {[{step:'PASSPHRASE',desc:'Human input → zeroizing memory',c:'t2'},{step:'ARGON2ID',desc:'Memory-hard KDF with tuned parameters',c:'gold'},{step:'HKDF-EXTRACT',desc:'PRK from Argon2id output + domain-separated salt',c:'purple'},{step:'HKDF-EXPAND',desc:'Per-secret KEK via domain separation',c:'cyan'},{step:'AES-256-GCM',desc:'Authenticated encryption with AAD',c:'green'}].map((s,i)=>(
+            <div key={i} style={{display:'flex',alignItems:'center',gap:14}}>
+              <div style={{width:40,height:40,borderRadius:10,border:'2px solid var(--'+s.c+')',display:'grid',placeItems:'center',fontFamily:'var(--mn)',fontSize:'0.88rem',fontWeight:700,color:'var(--'+s.c+')',flexShrink:0}}>{i+1}</div>
+              <div><div style={{fontFamily:'var(--mn)',fontSize:'0.88rem',fontWeight:600,color:'var(--'+s.c+')'}}>{s.step}</div><div style={{fontSize:'0.94rem',color:'var(--t2)'}}>{s.desc}</div></div>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <CodeBlock header="Vault Encryption" sub="Rust">
+{`<span class="c">// Double encryption at rest</span>
+<span class="k">let</span> <span class="n">db_key</span> = <span class="v">HKDF</span>::expand(master_key, <span class="s">"hermetic-db-v1"</span>);
+<span class="k">let</span> <span class="n">kek</span>    = <span class="v">HKDF</span>::expand(master_key, <span class="s">"hermetic-kek-v1-{id}"</span>);
+<span class="c">// SQLCipher database encryption (layer 1)</span>
+<span class="c">// AES-256-GCM per-secret envelope (layer 2)</span>`}
+      </CodeBlock>
+      <Shimmer/>
+      <Card>
+        <div style={{fontSize:'1.05rem',fontWeight:700,marginBottom:12}}>Secret Lifetime in Memory</div>
+        {[{l:'Daemon master_key',w:'100%',c:'var(--green)',t:'mlockall\'d'},{l:'Daemon decrypt',w:'8%',left:'35%',c:'var(--orange)',t:'~5ms'},{l:'MCP bridge',w:'12%',left:'38%',c:'var(--gold)',t:'~200ms'},{l:'Transport TLS',w:'8%',left:'42%',c:'var(--cyan)',t:'enc'}].map((b,i)=>(
+          <div key={i} style={{display:'grid',gridTemplateColumns:'140px 1fr',gap:12,alignItems:'center',marginBottom:6}}>
+            <div style={{fontFamily:'var(--mn)',fontSize:'0.82rem',textAlign:'right',color:'var(--t2)'}}>{b.l}</div>
+            <div className="tl-bar-wrap"><div className="tl-bar" style={{left:b.left||0,width:b.w,background:b.c+'40',color:b.c,animationDelay:(0.4+i*0.1)+'s'}}>{b.t}</div></div>
+          </div>
+        ))}
+        <div style={{display:'grid',gridTemplateColumns:'140px 1fr',gap:12,alignItems:'center',marginTop:4}}>
+          <div style={{fontFamily:'var(--mn)',fontSize:'0.82rem',textAlign:'right',color:'var(--red)'}}>Agent memory</div>
+          <div className="tl-bar-wrap"><div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--mn)',fontSize:'0.82rem',color:'var(--red)',letterSpacing:3}}>N E V E R</div></div>
+        </div>
+      </Card>
+    </div>}
+    {/* 36 INVARIANTS — TILE LAYOUT */}
+    {tab===1&&<div>
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:20}}>
+        <button className={'sub-tab'+(invCat===null?' active':'')} onClick={()=>{setInvCat(null);setSelInv(null)}} style={{fontSize:14}}>All ({Object.keys(INV).length})</button>
+        {INV_CATS.map(c=>{const count=Object.values(INV).filter(v=>v.cat===c).length;return<button key={c} className={'sub-tab'+(invCat===c?' active':'')} onClick={()=>{setInvCat(c);setSelInv(null)}} style={{fontSize:14}}><span style={{width:8,height:8,borderRadius:'50%',background:'var(--'+CAT_COLORS[c]+')',display:'inline-block',marginRight:6}}/>{c} ({count})</button>})}
+      </div>
+      {selInv&&INV[selInv]&&<Card style={{marginBottom:16,padding:18,borderLeft:'4px solid var(--'+CAT_COLORS[INV[selInv].cat]+')',background:'rgba(74,124,255,0.04)'}}>
+        <div style={{fontFamily:'var(--mn)',fontSize:18,fontWeight:700,color:'var(--'+CAT_COLORS[INV[selInv].cat]+')',marginBottom:6}}>{selInv}: {INV[selInv].name}</div>
+        <div style={{fontSize:16,color:'var(--t1)',lineHeight:1.7}}>{INV[selInv].desc}</div>
+        <div style={{fontSize:13,color:'var(--t3)',fontFamily:'var(--mn)',marginTop:8}}>Category: {INV[selInv].cat} · Click another tile to navigate</div>
+      </Card>}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:8}}>
+        {Object.entries(INV).filter(([,v])=>!invCat||v.cat===invCat).map(([id,v])=>{
+          const isActive=selInv===id;const c=CAT_COLORS[v.cat];
+          return(<div key={id} onClick={()=>setSelInv(isActive?null:id)} style={{
+            padding:'12px 14px',borderRadius:10,cursor:'pointer',
+            background:isActive?'var(--g-'+c+')':'var(--card)',
+            border:'1px solid '+(isActive?'var(--'+c+')':'var(--bdr)'),
+            transition:'all 0.15s',borderTop:'3px solid var(--'+c+')'
+          }}>
+            <div style={{fontFamily:'var(--mn)',fontSize:14,fontWeight:700,color:'var(--'+c+')',marginBottom:4}}>{id}</div>
+            <div style={{fontSize:13,fontWeight:600,color:'var(--t1)',lineHeight:1.3}}>{v.name}</div>
+          </div>)
+        })}
+      </div>
+    </div>}
+    {/* GOVERNANCE */}
+    {tab===2&&<div>
+      <Card style={{marginBottom:16}}>
+        <div style={{fontSize:'1.05rem',fontWeight:700,marginBottom:14}}>HAIG — Human-AI Integrated Governance</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:12}}>
+          {[{icon:'👤',label:'Constitutional Authority',sub:'Human Operator',c:'gold',desc:'Absolute veto. No AI override.'},{icon:'🏗️',label:'Architect & Planner',sub:'AI Architect',c:'blue',desc:'System design. Architecture review.'},{icon:'🗡️',label:'Adversarial Auditor',sub:'AI Auditor',c:'red',desc:'Attack campaigns. Zero trust posture.'},{icon:'⚙️',label:'Execution Agent',sub:'AI Executor',c:'purple',desc:'Production Rust. CI enforcement.'}].map((a,i)=>(
+            <Card key={i} bloom={'bloom bloom-'+a.c} style={{padding:16,textAlign:'center',borderTop:'3px solid var(--'+a.c+')'}}>
+              <div style={{fontSize:32}}>{a.icon}</div>
+              <div style={{fontSize:'0.94rem',fontWeight:700,marginTop:8}}>{a.label}</div>
+              <div style={{fontSize:'0.82rem',color:'var(--'+a.c+')',fontFamily:'var(--mn)',marginTop:2}}>{a.sub}</div>
+              <div style={{fontSize:'0.88rem',color:'var(--t2)',marginTop:8}}>{a.desc}</div>
+            </Card>
+          ))}
+        </div>
+      </Card>
+      <Card>
+        <div style={{fontSize:'1rem',fontWeight:700,marginBottom:10}}>Core Principles</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
+          {[{label:'Zero Knowledge',desc:'Agent never sees secret values.',c:'cyan'},{label:'Fail Closed',desc:'Any validation failure = immediate denial.',c:'red'},{label:'Zeroize Everything',desc:'All key material wiped on drop.',c:'green'},{label:'Constitutional Law',desc:'Governance docs are immutable law.',c:'gold'}].map((p,i)=><div key={i} style={{padding:'12px 14px',borderRadius:8,border:'1px solid var(--bdr)',background:'var(--card)'}}>
+            <div style={{fontSize:'0.88rem',fontWeight:700,color:'var(--'+p.c+')'}}>{p.label}</div>
+            <div style={{fontSize:'0.88rem',color:'var(--t2)',marginTop:4}}>{p.desc}</div>
+          </div>)}
+        </div>
+      </Card>
+    </div>}
+    {/* THREAT LAB */}
+    {tab===3&&<div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
+        {THREATS.map((t,i)=>(
+          <Card key={i} bloom="bloom" style={{padding:14,cursor:'pointer',borderColor:threat===i?'var(--red)':'var(--bdr)'}} onClick={()=>setThreat(threat===i?null:i)}>
+            <div style={{fontSize:'0.94rem',fontWeight:700}}>{t.name}</div>
+            <div style={{fontSize:'0.82rem',color:'var(--t3)',marginTop:2}}>{t.desc}</div>
+            {threat===i&&<div style={{marginTop:10,borderTop:'1px solid var(--bdr)',paddingTop:10}}>
+              {t.defense.map((d,di)=><div key={di} style={{display:'flex',alignItems:'center',gap:8,marginTop:4}}>
+                <span style={{fontFamily:'var(--mn)',fontSize:'0.82rem',color:'var(--green)'}}>✓</span>
+                <span style={{fontSize:'0.88rem',color:'var(--t2)'}}>{d}</span>
+              </div>)}
+            </div>}
+          </Card>
+        ))}
+      </div>
+    </div>}
+    {/* DEPENDENCIES — Canvas graph v3 restored */}
+    {tab===4&&<div>
+      <div style={{fontSize:'0.94rem',color:'var(--t2)',marginBottom:14}}>36 invariants with dependency edges. Hover nodes to inspect links. Force-directed layout.</div>
+      <DepGraph/>
+    </div>}
+  </div>);
+}
+
+
+// ═══ PROOF — Campaigns, Findings, Fuzz, Coverage, Landscape ═══
+function ProofSection(){
+  const[tab,setTab]=useState(0);const tabs=['Dashboard','Campaigns','Findings','Fuzz Lab','Landscape'];
+  const[selCamp,setSelCamp]=useState(null);const[selFinding,setSelFinding]=useState(null);
+  const[ct,setCt]=useState(FUZZ_DATA.map(()=>0));const[sel,setSel]=useState(null);
+  useEffect(()=>{if(tab===3){setCt(FUZZ_DATA.map(()=>0));const iv=setInterval(()=>setCt(p=>p.map((v,i)=>{const t=FUZZ_DATA[i].execs*1e6;return Math.min(v+t/50,t)})),50);return()=>clearInterval(iv)}},[tab]);
+  return(<div className="sec">
+    <SH label="Proof" labelColor="cyan" title="Adversarially Validated" subtitle="5 red team campaigns, 1.6 billion fuzz executions across 9 targets, 548 tests, 0 breaches. Verified, not promised."/>
+    <div className="sub-tabs">{tabs.map((t,i)=><button key={i} className={'sub-tab'+(tab===i?' active':'')} onClick={()=>setTab(i)}>{t}</button>)}</div>
+
+    {/* ===== TAB 0: DASHBOARD ===== */}
+    {tab===0&&<div>
+      {/* Top KPI row */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
+        {[{n:'0',l:'Breaches',c:'green',icon:'💎',sub:'Across all campaigns'},{n:'1.6B',l:'Fuzz Executions',c:'cyan',icon:'🔬',sub:'9 targets, ASAN clean'},{n:'548',l:'Tests Passing',c:'blue',icon:'✅',sub:'Unit + Integration + E2E'},{n:'5',l:'Red Team Campaigns',c:'gold',icon:'⚔️',sub:'Internal + External AI'}].map((k,i)=>(
+          <Card key={i} style={{padding:20,textAlign:'center',borderTop:'3px solid var(--'+k.c+')'}}>
+            <div style={{fontSize:26,marginBottom:6}}>{k.icon}</div>
+            <div style={{fontSize:32,fontWeight:800,color:'var(--'+k.c+')',fontFamily:'var(--mn)',lineHeight:1}}>{k.n}</div>
+            <div style={{fontSize:15,fontWeight:600,color:'var(--t1)',marginTop:6}}>{k.l}</div>
+            <div style={{fontSize:13,color:'var(--t3)',marginTop:4}}>{k.sub}</div>
+          </Card>
+        ))}
+      </div>
+      {/* Campaign timeline */}
+      <Card style={{marginBottom:16,padding:20}}>
+        <div style={{fontSize:18,fontWeight:700,marginBottom:16}}>Campaign Timeline</div>
+        {RT_CAMPAIGNS.map((c,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'center',gap:14,padding:'12px 0',borderBottom:i<RT_CAMPAIGNS.length-1?'1px solid var(--bdr)':'none'}}>
+            <div style={{width:36,height:36,borderRadius:10,background:'var(--g-'+c.color+')',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:14,color:'var(--'+c.color+')',fontFamily:'var(--mn)',flexShrink:0}}>{i+1}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:16,fontWeight:700}}>{c.name} <span style={{fontWeight:400,color:'var(--t3)',fontSize:14}}>· {c.type}</span></div>
+              <div style={{fontSize:13,color:'var(--t3)',fontFamily:'var(--mn)'}}>{c.model} · {c.vectors} vectors</div>
+            </div>
+            <div style={{width:100,height:6,background:'var(--bdr)',borderRadius:3,overflow:'hidden'}}><div style={{width:(c.vectors/116*100)+'%',height:'100%',background:'var(--'+c.color+')',borderRadius:3}}/></div>
+            <div style={{fontFamily:'var(--mn)',fontSize:14,fontWeight:700,color:c.breaches>0?'var(--orange)':'var(--green)',minWidth:80,textAlign:'right'}}>{c.breaches>0?c.breaches+' fixed':'0 breach'}</div>
+          </div>
+        ))}
+      </Card>
+      {/* Bottom stats */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+        <Card style={{padding:16,textAlign:'center'}}>
+          <div style={{fontSize:28,fontWeight:800,color:'var(--orange)',fontFamily:'var(--mn)'}}>3</div>
+          <div style={{fontSize:14,color:'var(--t2)',marginTop:4}}>Boundary vulns found + fixed</div>
+          <div style={{fontSize:13,color:'var(--t3)',marginTop:2}}>HC-7, HC-8, URL injection</div>
+        </Card>
+        <Card style={{padding:16,textAlign:'center'}}>
+          <div style={{fontSize:28,fontWeight:800,color:'var(--green)',fontFamily:'var(--mn)'}}>{'<'}1hr</div>
+          <div style={{fontSize:14,color:'var(--t2)',marginTop:4}}>Total remediation time</div>
+          <div style={{fontSize:13,color:'var(--t3)',marginTop:2}}>All 3 vulns patched same session</div>
+        </Card>
+        <Card style={{padding:16,textAlign:'center'}}>
+          <div style={{fontSize:28,fontWeight:800,color:'var(--gold)',fontFamily:'var(--mn)'}}>36</div>
+          <div style={{fontSize:14,color:'var(--t2)',marginTop:4}}>Invariants held under fire</div>
+          <div style={{fontSize:13,color:'var(--t3)',marginTop:2}}>All campaigns, all vectors</div>
+        </Card>
+      </div>
+    </div>}
+
+    {/* ===== TAB 1: CAMPAIGNS ===== */}
+    {tab===1&&<div>
+      {RT_CAMPAIGNS.map((c,i)=>(
+        <Card key={i} bloom="bloom" style={{padding:0,marginBottom:12,overflow:'hidden',cursor:'pointer',borderLeft:'3px solid var(--'+c.color+')'}} onClick={()=>setSelCamp(selCamp===i?null:i)}>
+          <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
+            <div style={{width:48,height:48,borderRadius:12,background:'var(--g-'+c.color+')',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:18,color:'var(--'+c.color+')',fontFamily:'var(--mn)',flexShrink:0}}>{i+1}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:18,fontWeight:700}}>{c.name}</div>
+              <div style={{fontSize:14,color:'var(--t3)',fontFamily:'var(--mn)'}}>{c.type} · {c.model} · {c.vectors} vectors</div>
+            </div>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:15,fontWeight:700,color:c.breaches>0?'var(--orange)':'var(--green)'}}>{c.breaches>0?c.breaches+' found + fixed':'0 breaches'}</div>
+              <div style={{fontSize:13,color:'var(--t3)'}}>{c.outcome}</div>
+            </div>
+          </div>
+          <div style={{height:3,background:'var(--bdr)'}}><div style={{width:(c.vectors/116*100)+'%',height:'100%',background:'var(--'+c.color+')'}}/></div>
+        </Card>
+      ))}
+      <Card style={{padding:18,marginTop:16,background:'rgba(62,221,138,0.04)',borderColor:'var(--green)30',borderLeft:'4px solid var(--green)'}}>
+        <div style={{fontSize:16,color:'var(--green)',fontWeight:700,marginBottom:6}}>External Adversary Certification</div>
+        <div style={{fontSize:15,color:'var(--t2)',lineHeight:1.7}}>All 36 invariants held under adversarial pressure across 5 campaigns including external AI auditor (Gemini 2.5 Pro). 3 real vulnerabilities discovered and patched within 1 hour.</div>
+      </Card>
+    </div>}
+
+    {/* ===== TAB 2: FINDINGS ===== */}
+    {tab===2&&<div>
+      <div style={{fontSize:16,color:'var(--t2)',marginBottom:16}}>3 boundary-layer vulnerabilities found by external adversary. All fixed within 1 hour.</div>
+      {RT_FINDINGS.map((f,i)=>(
+        <Card key={i} bloom="bloom" style={{padding:0,marginBottom:12,overflow:'hidden',cursor:'pointer'}} onClick={()=>setSelFinding(selFinding===i?null:i)}>
+          <div style={{padding:'18px 20px',display:'flex',alignItems:'center',gap:16}}>
+            <div style={{width:56,height:56,borderRadius:12,background:f.severity==='CRITICAL'?'var(--g-red)':f.severity==='HIGH'?'var(--g-orange)':'var(--g-gold)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <div style={{fontSize:12,fontWeight:800,color:f.severity==='CRITICAL'?'var(--red)':f.severity==='HIGH'?'var(--orange)':'var(--gold)',fontFamily:'var(--mn)'}}>{f.severity}</div>
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:17,fontWeight:700}}><span style={{color:'var(--cyan)',fontFamily:'var(--mn)'}}>{f.id}</span> — {f.title}</div>
+              <div style={{fontSize:14,color:'var(--t3)',fontFamily:'var(--mn)'}}>Found by {f.discovery} · Fixed in {f.fix}</div>
+            </div>
+            <span style={{fontSize:24,color:'var(--green)'}}>🛡️</span>
+          </div>
+          {selFinding===i&&<div style={{padding:'0 20px 20px',borderTop:'1px solid var(--bdr)'}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginTop:14}}>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--red)',marginBottom:8,fontFamily:'var(--mn)'}}>ATTACK VECTOR</div>
+                <div style={{fontSize:15,color:'var(--t2)',lineHeight:1.6,padding:14,background:'rgba(255,76,106,0.05)',borderRadius:8,border:'1px solid var(--red)20'}}>{f.attack}</div>
+              </div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--green)',marginBottom:8,fontFamily:'var(--mn)'}}>DEFENSE APPLIED</div>
+                <div style={{fontSize:15,color:'var(--t2)',lineHeight:1.6,padding:14,background:'rgba(62,221,138,0.05)',borderRadius:8,border:'1px solid var(--green)20'}}>{f.defense}</div>
+              </div>
+            </div>
+          </div>}
+        </Card>
+      ))}
+    </div>}
+
+    {/* ===== TAB 3: FUZZ LAB ===== */}
+    {tab===3&&<div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:10,marginBottom:20}}>
+        {[{n:'1.6B',l:'Total Executions',c:'cyan'},{n:'9',l:'Fuzz Targets',c:'blue'},{n:'10,263',l:'Code Edges',c:'gold'},{n:'8,307',l:'Corpus Inputs',c:'purple'},{n:'0',l:'Crashes',c:'green'}].map((s,i)=>(
+          <Card key={i} style={{textAlign:'center',padding:14,borderTop:'2px solid var(--'+s.c+')'}}>
+            <div style={{fontSize:24,fontWeight:800,color:'var(--'+s.c+')',fontFamily:'var(--mn)'}}>{s.n}</div>
+            <div style={{fontSize:13,color:'var(--t2)',marginTop:4}}>{s.l}</div>
+          </Card>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:10}}>
+        {FUZZ_DATA.map((t,i)=>(
+          <Card key={i} bloom="bloom bloom-cyan" style={{padding:16,borderTop:'3px solid var(--cyan)'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontFamily:'var(--mn)',fontSize:15,fontWeight:600,color:'var(--cyan)'}}>{t.name}</span>
+              <Badge color="green">0 crashes</Badge>
+            </div>
+            <div style={{fontSize:28,fontWeight:800,lineHeight:1}}>{t.execs>=1?(ct[i]/1e6).toFixed(1)+'M':t.execs>=0.001?(ct[i]/1e3).toFixed(1)+'K':Math.round(ct[i])}</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginTop:10}}>
+              <div><div style={{fontSize:12,color:'var(--t3)'}}>Edges</div><div style={{fontSize:14,fontWeight:700,color:'var(--gold)',fontFamily:'var(--mn)'}}>{t.edges}</div></div>
+              <div><div style={{fontSize:12,color:'var(--t3)'}}>Corpus</div><div style={{fontSize:14,fontWeight:700,color:'var(--purple)',fontFamily:'var(--mn)'}}>{t.corpus}</div></div>
+              <div><div style={{fontSize:12,color:'var(--t3)'}}>Crate</div><div style={{fontSize:14,fontWeight:600,color:'var(--t2)',fontFamily:'var(--mn)'}}>{t.crate}</div></div>
+            </div>
+            <div style={{width:'100%',height:4,background:'rgba(255,255,255,0.04)',borderRadius:2,marginTop:10}}><div style={{width:Math.min(ct[i]/(t.execs*1e6)*100,100)+'%',height:4,background:'var(--cyan)',borderRadius:2}}/></div>
+          </Card>
+        ))}
+      </div>
+    </div>}
+
+    {/* ===== TAB 4: LANDSCAPE ===== */}
+    {tab===4&&<div>
+      <div style={{overflowX:'auto'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontFamily:'var(--mn)',fontSize:14}}>
+          <thead><tr style={{borderBottom:'2px solid var(--bdr)'}}>
+            <th style={{textAlign:'left',padding:'12px 14px',color:'var(--t3)',fontWeight:600}}>Feature</th>
+            {COMPETITORS.map(c=><th key={c.name} style={{textAlign:'center',padding:'12px 10px',color:'var(--'+c.color+')',fontWeight:700}}>{c.name}</th>)}
+          </tr></thead>
+          <tbody>{COMP_FEATURES.map((f,i)=>(
+            <tr key={f.key} style={{borderBottom:'1px solid var(--bdr)'}}>
+              <td style={{padding:'12px 14px',color:'var(--t1)'}}>{f.name}</td>
+              {COMPETITORS.map(c=><td key={c.name} style={{textAlign:'center',padding:'12px 10px',fontSize:16}}>{c[f.key]?<span style={{color:'var(--green)'}}>✓</span>:<span style={{color:'var(--t3)'}}>—</span>}</td>)}
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </div>}
+  </div>);
+}
+
+function PricingSection(){
+  const[faq,setFaq]=useState(null);
+  const faqs=[{q:'Do I need a commercial license?',a:'Only if you modify Hermetic and serve it as a network service, or want to embed it in closed-source products. Internal use — even modified — is always free under AGPL.'},{q:'What do I get with a commercial license?',a:'AGPL obligations waived (use in closed-source), multiple environments (CL-1 lifted), extended audit retention (CL-2 lifted), no community banner (CL-3 lifted), and priority support.'},{q:'Can I fork and modify Hermetic?',a:'Yes, under AGPL v3. If you modify it and run it only for yourself, no obligations. If you serve modifications to others, you must publish the changes — or buy a commercial license.'},{q:'Which AI agents work with Hermetic?',a:'Any MCP-compatible agent — Claude Code, Claude Desktop, Cursor, Windsurf, and the growing MCP ecosystem.'},{q:'How is this different from HashiCorp Vault?',a:'Vault is a secrets manager. Hermetic is a credential broker — the agent never sees the secret. Different architecture, different threat model. Also: 1.6 billion fuzz executions with zero crashes. Published.'}];
+
+  const tiers=[
+    {name:'Community',price:'Free',sub:'AGPL v3 · Forever',c:'blue',cta:'Get Started',badge:null,
+     features:['Full V1 daemon','AES-256-GCM + Argon2id + HKDF','Opaque handle protocol','5 MCP tools','All 36 invariants enforced','1 named environment','7-day audit log retention','Community banner']},
+    {name:'Individual',price:'$149',sub:'Per year · 1 developer',c:'gold',cta:'Buy License',badge:'POPULAR',
+     features:['Everything in Community','AGPL obligations waived','Use in closed-source products','3 named environments','30-day audit retention','No community banner','Email support (48hr)','Priority CVE notifications']},
+    {name:'Team',price:'$499',sub:'Per year · Up to 10 devs',c:'purple',cta:'Buy License',badge:null,
+     features:['Everything in Individual','10 developers, 1 org','10 named environments','90-day audit retention','24hr email support','V2 Gatekeeper access','Onboarding guide']},
+    {name:'Enterprise',price:'Custom',sub:'Starting at $2,000/year',c:'cyan',cta:'Contact Us',badge:null,
+     features:['Everything in Team','Unlimited developers','Unlimited environments','1-year audit retention','HSM / TPM integration (V2+)','SOC 2 evidence packages','Custom SLA','Direct maintainer access']}
+  ];
+
+  return(<div className="sec">
+    <SH label="Pricing" labelColor="gold" title="Simple, Transparent Pricing" subtitle="The complete V1 daemon is free under AGPL v3. Commercial licenses waive AGPL obligations and lift operational limits."/>
+
+    {/* Security guarantee */}
+    <div style={{textAlign:'center',marginBottom:32}}>
+      <span style={{display:'inline-flex',alignItems:'center',gap:10,padding:'10px 24px',borderRadius:100,background:'rgba(62,221,138,0.08)',border:'1px solid rgba(62,221,138,0.2)',fontSize:15,color:'var(--green)',fontWeight:600}}>
+        🔒 Full security on every tier — no feature is ever gated
+      </span>
+    </div>
+
+    {/* Pricing cards */}
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:16,marginBottom:40}}>
+      {tiers.map((t,i)=>(
+        <div key={i} style={{display:'flex',flexDirection:'column',background:'var(--card)',border:'1px solid '+(t.badge?'var(--gold)':'var(--bdr)'),borderRadius:14,overflow:'hidden',transition:'all 0.2s',position:'relative'}} className="bloom">
+          {t.badge&&<div style={{background:'linear-gradient(135deg,var(--gold),#c9a53d)',padding:'6px 0',textAlign:'center',fontSize:12,fontWeight:800,color:'#0a0a0c',letterSpacing:2}}>{t.badge}</div>}
+          <div style={{padding:'28px 24px 0'}}>
+            <div style={{fontFamily:'var(--mn)',fontSize:12,fontWeight:700,letterSpacing:3,color:'var(--'+t.c+')',marginBottom:8}}>{t.name.toUpperCase()}</div>
+            <div style={{fontSize:36,fontWeight:800,lineHeight:1,marginBottom:4}}>{t.price}</div>
+            <div style={{fontSize:14,color:'var(--t3)',marginBottom:20}}>{t.sub}</div>
+            <div style={{padding:'12px 0',textAlign:'center',borderRadius:10,fontWeight:700,fontSize:15,cursor:'pointer',marginBottom:20,background:t.badge?'linear-gradient(135deg,var(--gold),#c9a53d)':t.c==='cyan'?'linear-gradient(135deg,var(--cyan),#2ab09f)':'transparent',color:t.badge||t.c==='cyan'?'#0a0a0c':'var(--t1)',border:!t.badge&&t.c!=='cyan'?'1px solid var(--bdr)':'none'}} className="bloom">{t.cta}</div>
+          </div>
+          <div style={{padding:'0 24px 28px',flex:1,borderTop:'1px solid var(--bdr)'}}>
+            {t.features.map((f,fi)=>(
+              <div key={fi} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'8px 0',fontSize:14,color:'var(--t1)'}}>
+                <span style={{color:'var(--'+t.c+')',fontSize:14,lineHeight:'20px',flexShrink:0}}>✓</span>
+                <span>{f}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Comparison highlights */}
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12,marginBottom:40}}>
+      {[{icon:'🛡️',title:'CL-1: Environments',free:'1 (default)',paid:'3 / 10 / unlimited',c:'blue'},{icon:'📋',title:'CL-2: Audit Retention',free:'7 days',paid:'30 / 90 / 365 days',c:'purple'},{icon:'💬',title:'CL-3: Banner',free:'Community banner shown',paid:'Banner removed',c:'gold'}].map((cl,i)=>(
+        <Card key={i} style={{padding:16,borderTop:'3px solid var(--'+cl.c+')'}}>
+          <div style={{fontSize:20,marginBottom:6}}>{cl.icon}</div>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:8}}>{cl.title}</div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,padding:'6px 0',borderBottom:'1px solid var(--bdr)'}}>
+            <span style={{color:'var(--t3)'}}>Community</span><span style={{color:'var(--t2)',fontFamily:'var(--mn)'}}>{cl.free}</span>
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:13,padding:'6px 0'}}>
+            <span style={{color:'var(--t3)'}}>Commercial</span><span style={{color:'var(--green)',fontFamily:'var(--mn)'}}>{cl.paid}</span>
+          </div>
+        </Card>
+      ))}
+    </div>
+
+    {/* FAQ */}
+    <div style={{maxWidth:720,margin:'0 auto'}}>
+      <div style={{fontSize:20,fontWeight:700,marginBottom:16,textAlign:'center'}}>Frequently Asked</div>
+      {faqs.map((f,i)=><Card key={i} bloom="bloom" style={{padding:0,marginBottom:8,cursor:'pointer',overflow:'hidden'}} onClick={()=>setFaq(faq===i?null:i)}>
+        <div style={{padding:'16px 20px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:16,fontWeight:500}}>{f.q}</span><span style={{color:'var(--t3)',transition:'transform 0.3s',display:'inline-block',transform:faq===i?'rotate(45deg)':'',fontSize:20}}>+</span></div>
+        {faq===i&&<div style={{padding:'0 20px 16px',fontSize:15,color:'var(--t2)',lineHeight:1.7,animation:'fadeIn 0.2s'}}>{f.a}</div>}
+      </Card>)}
+    </div>
+  </div>);
+}
+
+
+// ═══ V2 COMING SOON ═══
+function V2Section(){
+  const phases=[
+    {phase:'V2.0 — Gatekeeper',timeline:'Q3 2026',status:'In Design',c:'blue',
+     features:[
+      {name:'HTTPS API (TLS + Token Auth)',desc:'The same operations as V1 — store, list, handle-issue, handle-redeem, seal — exposed over authenticated HTTPS instead of Unix domain socket. Agents on remote machines can broker credentials through a central Hermetic instance.',icon:'🌐'},
+      {name:'API Token Authentication',desc:'Each agent/service gets a scoped Gatekeeper API token. Agent tokens can issue and redeem handles but cannot store or delete secrets. Admin tokens have full access. Minimal RBAC from day one.',icon:'🔑'},
+      {name:'Self-Hosted Binary',desc:'You run hermetic-gatekeeper on your infrastructure. Secrets never leave your machines. No SaaS dependency. No cloud bills. Air-gap compatible.',icon:'🏠'},
+      {name:'Python + Node.js SDKs',desc:'pip install hermetic / npm install hermetic. 3-line integration: connect, store, authenticated_request. Replaces hand-crafted wire protocol frames.',icon:'📦'},
+      {name:'Docker Native Example',desc:'docker-compose.yml with socket mount pattern. Demonstrates the full zero-knowledge pipeline in 5 minutes.',icon:'🐳'}
+    ]},
+    {phase:'V2.1 — Multi-Tenant',timeline:'Q4 2026',status:'Planned',c:'purple',
+     features:[
+      {name:'Tenant Isolation',desc:'Separate vault databases per tenant within one Gatekeeper instance. Extends the Phase 3A environment isolation pattern to network-accessible tenants.',icon:'🏢'},
+      {name:'RBAC (Role-Based Access)',desc:'Three roles: Admin (manage all secrets), Operator (issue handles), Agent (redeem only). Stored in the vault alongside secrets.',icon:'👥'},
+      {name:'Audit Log Export',desc:'Push audit events to external SIEM via webhook or syslog. Splunk, Datadog, PagerDuty integration. Enterprise compliance enabler.',icon:'📋'},
+      {name:'Kubernetes CSI Driver',desc:'Container Storage Interface driver that mounts secrets as files in pod volumes. The K8s native integration path.',icon:'☸️'}
+    ]},
+    {phase:'V2.2 — Enterprise',timeline:'2027',status:'Roadmap',c:'cyan',
+     features:[
+      {name:'SSO / SAML / OIDC',desc:'Enterprise identity provider integration. Use your existing auth system. The feature enterprise procurement requires.',icon:'🏛️'},
+      {name:'Approval Workflows',desc:'High-value credential access requires a second person to approve. The compliance feature for regulated industries.',icon:'✅'},
+      {name:'HSM / TPM Integration',desc:'Hardware root of trust for the master key. The ultimate security feature — master key never exists in software.',icon:'🔐'},
+      {name:'Optional Hosted Dashboard',desc:'A web dashboard that connects to YOUR Gatekeeper instance. Data stays on your infrastructure. Dashboard is hosted by us. Grafana model.',icon:'📊'}
+    ]}
+  ];
+
+  return(<div className="sec">
+    <SH label="V2 Roadmap" labelColor="blue" title={<span>V2 Gatekeeper <span style={{fontSize:'clamp(18px,3vw,28px)',fontWeight:600,color:'var(--cyan)'}}>— Coming Soon</span></span>} subtitle="V1 is the cryptographic foundation. V2 makes it network-accessible. Same handle protocol, same invariants, same zero-knowledge properties — now available to remote agents."/>
+
+    {/* V1 → V2 transition banner */}
+    <Card style={{marginBottom:28,padding:20,background:'rgba(74,124,255,0.04)',borderLeft:'4px solid var(--blue)'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:20,alignItems:'center'}}>
+        <div style={{textAlign:'center'}}>
+          <div style={{fontFamily:'var(--mn)',fontSize:13,color:'var(--green)',fontWeight:700,letterSpacing:2,marginBottom:4}}>V1 — SHIPPED</div>
+          <div style={{fontSize:16,fontWeight:700}}>Local Daemon</div>
+          <div style={{fontSize:14,color:'var(--t3)',marginTop:4}}>Unix socket · Same machine · MCP stdio</div>
+        </div>
+        <div style={{fontSize:28,color:'var(--blue)'}}>→</div>
+        <div style={{textAlign:'center'}}>
+          <div style={{fontFamily:'var(--mn)',fontSize:13,color:'var(--blue)',fontWeight:700,letterSpacing:2,marginBottom:4}}>V2 — BUILDING</div>
+          <div style={{fontSize:16,fontWeight:700}}>Network Gatekeeper</div>
+          <div style={{fontSize:14,color:'var(--t3)',marginTop:4}}>HTTPS API · Remote agents · Token auth</div>
+        </div>
+      </div>
+    </Card>
+
+    {/* Phase cards */}
+    {phases.map((p,pi)=>(
+      <div key={pi} style={{marginBottom:28}}>
+        <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:16}}>
+          <div style={{padding:'6px 14px',borderRadius:8,background:'var(--g-'+p.c+')',border:'1px solid var(--'+p.c+')30',fontFamily:'var(--mn)',fontSize:14,fontWeight:700,color:'var(--'+p.c+')'}}>{p.phase}</div>
+          <div style={{fontSize:15,color:'var(--t3)',fontFamily:'var(--mn)'}}>{p.timeline}</div>
+          <div style={{padding:'4px 12px',borderRadius:100,fontSize:13,fontWeight:600,background:p.status==='In Design'?'rgba(74,124,255,0.12)':p.status==='Planned'?'rgba(147,102,255,0.12)':'rgba(54,214,200,0.08)',color:p.status==='In Design'?'var(--blue)':p.status==='Planned'?'var(--purple)':'var(--cyan)'}}>{p.status}</div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+          {p.features.map((f,fi)=>(
+            <Card key={fi} bloom="bloom" style={{padding:20,borderTop:'3px solid var(--'+p.c+')'}}>
+              <div style={{fontSize:28,marginBottom:10}}>{f.icon}</div>
+              <div style={{fontSize:16,fontWeight:700,marginBottom:8,color:'var(--t1)'}}>{f.name}</div>
+              <div style={{fontSize:14,color:'var(--t2)',lineHeight:1.6}}>{f.desc}</div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    ))}
+
+    {/* Architecture preview */}
+    <Card style={{padding:24,marginTop:12,background:'rgba(54,214,200,0.03)',borderColor:'var(--cyan)30'}}>
+      <div style={{fontSize:18,fontWeight:700,marginBottom:14,color:'var(--cyan)'}}>What Doesn't Change</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12}}>
+        {['Handle protocol (CC-1 atomic consumption)','AES-256-GCM + Argon2id + HKDF','SSRF protection (HC-2)','All 36 invariants','Zero-knowledge properties','AGPL v3 dual-license','Fail-closed on all errors','Constitutional governance'].map((item,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:14,color:'var(--t1)'}}>
+            <span style={{color:'var(--green)',flexShrink:0}}>✓</span>{item}
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    {/* Newsletter / interest */}
+    <div style={{textAlign:'center',marginTop:32}}>
+      <div style={{fontSize:16,color:'var(--t2)',marginBottom:12}}>Want early access to V2 Gatekeeper?</div>
+      <a href="https://github.com/hermetic-sys/hermetic" target="_blank" rel="noopener" style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 24px',borderRadius:10,background:'linear-gradient(135deg,var(--blue),#3060cc)',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:16,transition:'all 0.2s'}} className="bloom">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star on GitHub for Updates
+      </a>
+    </div>
+  </div>);
+}
+
+// ═══ APP ═══
+function App(){
+  const[section,setSection]=useState(null);const[menuOpen,setMenuOpen]=useState(false);
+  const[mob,setMob]=useState(()=>window.innerWidth<=768);
+  useEffect(()=>{const check=()=>setMob(window.innerWidth<=768);window.addEventListener('resize',check);return()=>window.removeEventListener('resize',check)},[]);
+  const closeMenu=()=>setMenuOpen(false);
+  const navTo=(id)=>{setSection(id);scrollTo({top:0,behavior:'smooth'});closeMenu()};
+  const map={start:GetStartedSection,security:SecuritySection,proof:ProofSection,pricing:PricingSection,v2:V2Section};const Comp=map[section];
+  return(<div>
+    <nav className="topnav"><div className="topnav-in">
+      <div style={{cursor:'pointer',display:'flex',alignItems:'center',gap:10}} onClick={()=>navTo(null)}>
+        <img src={HERO_LOGO} alt="Hermetic" style={{height:32,objectFit:'contain'}}/>
+      </div>
+      {mob?(<button className={'burger'+(menuOpen?' open':'')}onClick={()=>setMenuOpen(o=>!o)}aria-label="Menu"style={{marginLeft:'auto'}}><span/><span/><span/></button>):(
+        <div className="nav-tabs">{SECTIONS.map(s=>(<button key={s.id}className={'nav-tab'+(section===s.id?' active':'')}onClick={()=>navTo(s.id)}>{s.name}</button>))}</div>
+      )}
+    </div></nav>
+    <div className={'drawer-overlay'+(menuOpen?' open':'')}onClick={closeMenu}/>
+    <div className={'drawer'+(menuOpen?' open':'')}>
+      <div className="drawer-header"><span style={{fontFamily:'var(--mn)',fontSize:14,letterSpacing:2,color:'var(--t3)'}}>HERMETIC</span><button className="drawer-close"onClick={closeMenu}>✕</button></div>
+      <button className={'drawer-item'+(section===null?' active':'')}onClick={()=>navTo(null)}>🏠 Home</button>
+      {SECTIONS.map(s=>(<button key={s.id}className={'drawer-item'+(section===s.id?' active':'')}onClick={()=>navTo(s.id)}>{s.icon} {s.name}</button>))}
+    </div>
+    <div className="wrap">
+      {!section?<Hero navTo={navTo}/>:Comp?<Comp/>:null}
+      {section&&!mob&&<div style={{padding:'24px 0 36px',borderTop:'1px solid var(--bdr)',marginTop:24,display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
+        <button className="nav-tab"onClick={()=>navTo(null)}style={{color:'var(--t1)'}}>← Home</button>
+        {SECTIONS.map(s=><button key={s.id}className={'nav-tab'+(section===s.id?' active':'')}onClick={()=>navTo(s.id)}>{s.name}</button>)}
+      </div>}
+      <footer style={{textAlign:'center',padding:'32px 0 40px',borderTop:'1px solid var(--bdr)'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:10,padding:'10px 18px',background:'var(--card)',border:'1px solid var(--bdr-g)',borderRadius:100,fontFamily:'var(--mn)',fontSize:14,color:'var(--t2)',marginBottom:12}}>
+          548 tests · 5 campaigns · 1.6B fuzz executions · 0 crashes · AGPL v3
+        </div>
+        <div style={{fontSize:15,color:'var(--t3)'}}>Built under HAIG governance · Human Constitutional Authority · AI Architect · AI Auditor · AI Executor</div>
+      </footer>
+    </div>
+  </div>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>
