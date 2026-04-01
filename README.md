@@ -1,2 +1,2 @@
 # hermetic-sys.github.io
-Hermetic — Zero-Knowledge Credential Broker for AI Agents
+Hermetic — Agent-Isolates Credential Broker for AI Agents
