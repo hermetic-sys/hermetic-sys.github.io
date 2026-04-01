@@ -3164,7 +3164,7 @@ function Hero({navTo}){
     <div style={{position:'relative',zIndex:1}}>
     <div style={{fontFamily:'var(--mn)',fontSize:12,color:'var(--t3)',letterSpacing:'3px',marginBottom:20}}>AGENT-ISOLATED CREDENTIAL BROKER</div>
     <h1 style={{fontSize:'clamp(28px,5vw,48px)',fontWeight:900,lineHeight:1.2,letterSpacing:'-1px',marginBottom:16,color:'var(--t1)',textAlign:'center'}}>Your AI agent <span className="hero-rotate" style={{height:'1.15em',minWidth:'clamp(130px,22vw,300px)'}}>{[{text:'has your',c:'var(--t1)'},{text:'steals your',c:'var(--red)'},{text:'leaks your',c:'var(--orange)'},{text:'exposes your',c:'var(--gold)'}].map(function(w,i){return <span key={i} className={heroWord===i?'hr-active':heroWord===(i===0?3:i-1)?'hr-exit':''} style={{color:w.c}}>{w.text}</span>})}</span><br/>API keys. Right now.</h1>
-    <p style={{fontSize:'clamp(16px,2vw,20px)',color:'var(--t3)',marginBottom:32,lineHeight:1.5,textAlign:'center'}}>Hermetic fixes that. Your keys never enter the agent's memory. Not ever.</p>
+    <p style={{fontSize:'clamp(16px,2vw,20px)',color:'var(--t3)',marginBottom:32,lineHeight:1.5,textAlign:'center'}}>Hermetic fixes that. Your keys never enter the agent's memory. Ever.</p>
     <div style={{display:'flex',justifyContent:'center',gap:12,flexWrap:'wrap',marginBottom:16}}>
      <button className="cta-primary" onClick={function(){navTo('start')}}>Install in 60 seconds</button>
      <button className="cta-secondary" onClick={function(){document.getElementById('beat2').scrollIntoView({behavior:'smooth'})}}>See how it works ↓</button>
