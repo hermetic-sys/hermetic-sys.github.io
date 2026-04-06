@@ -1253,7 +1253,7 @@ function PricingSection() {
               <div style={{fontFamily:'var(--mn)',fontSize:11,fontWeight:700,color:'var(--accent2)',letterSpacing:'2px',textAlign:'center',marginBottom:6,textTransform:'uppercase'}}>Roadmap</div>
               <h3 style={{fontSize:18,fontWeight:800,color:'var(--t1)',textAlign:'center',marginBottom:6}}>From vault to platform</h3>
               <p style={{fontSize:14,color:'var(--t3)',lineHeight:1.6,maxWidth:560,margin:'0 auto 20px',textAlign:'center'}}>Each phase builds on the same agent-isolation guarantee. Your secrets never enter agent memory — at any scale.</p>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:10}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:12,maxWidth:880,margin:'0 auto'}}>
                 {roadmap.map((p,pi) => (
                   <div key={pi} className="card" style={{padding:14,borderTop:`3px solid ${p.c}`}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
