@@ -378,6 +378,7 @@ async function submitForm(url, data, setStatus) {
 
 const SECTIONS = [
   {id:'how', name:'How It Works'},
+  {id:'proxy', name:'MCP Proxy'},
   {id:'features', name:'Features'},
   {id:'proof', name:'Proof'},
   {id:'research', name:'Research'},
@@ -583,30 +584,35 @@ function Hero({navTo}) {
 function HowSection() {
   const [tier, setTier] = useState(0);
   const tiers = [
-    {label:'★★★ Request', tag:'BROKERED', color:'var(--accent)', exposure:'ZERO', cmd:'hermetic request'},
-    {label:'★★ Run', tag:'TRANSIENT', color:'var(--accent2)', exposure:'~milliseconds', cmd:'hermetic run'},
-    {label:'★ Reveal', tag:'DIRECT', color:'var(--purple)', exposure:'Terminal only', cmd:'hermetic reveal'},
-    {label:'🛡️ Proxy', tag:'MCP PROXY', color:'var(--green)', exposure:'Config-free', cmd:'hermetic proxy'},
+    {label:'★★★ Request', tag:'BROKERED', color:'var(--accent)', exposure:'ZERO',
+     brief:'The daemon makes the API call for you. Your credential never enters the agent\u2019s address space \u2014 not in memory, not in env vars, not in files, not in output. The agent sends a secret name and URL; the daemon injects the real credential and returns only the API response. No other tool does this.',
+     cmd:'hermetic request'},
+    {label:'★★ Run', tag:'TRANSIENT', color:'var(--accent2)', exposure:'~milliseconds',
+     brief:'Credential lives in a child process for the duration of one command, then is wiped. The child runs in an isolated process group with a sanitized environment. Dangerous interpreters (sh, bash, python, node) are blocked by default. The agent gets the exit code \u2014 never the credential.',
+     cmd:'hermetic run'},
+    {label:'★ Reveal', tag:'DIRECT', color:'var(--purple)', exposure:'Terminal only',
+     brief:'Prints the credential to your terminal \u2014 not the agent\u2019s. Requires passphrase re-entry as a safety ceremony. Rate-limited to prevent brute-force. Every reveal is audit-logged with timestamp, process ID, and target. Your terminal, your responsibility.',
+     cmd:'hermetic reveal'},
   ];
   const t = tiers[tier];
   return (
     <section className="sec" id="how">
       <div className="wrap">
         <SR>
-          <div className="sec-hd">
-            <div className="sec-label" style={{color:'var(--accent)'}}>How It Works</div>
-            <h2 className="sec-title">Four ways to use your credentials.</h2>
-            <div style={{width:48,height:3,borderRadius:2,background:'linear-gradient(90deg,var(--accent),var(--accent2))',margin:'12px 0 0'}} />
-            <div className="sec-sub">Click each tier to see how credentials flow. From zero-exposure brokered calls to protecting every MCP server.</div>
+          <div className="sec-hd" style={{textAlign:'center'}}>
+            <div className="sec-label" style={{color:'var(--accent)', textAlign:'center'}}>How It Works</div>
+            <h2 className="sec-title" style={{textAlign:'center'}}>Three security tiers. You choose the exposure.</h2>
+            <div style={{width:48,height:3,borderRadius:2,background:'linear-gradient(90deg,var(--accent),var(--accent2))',margin:'12px auto 0'}} />
+            <div className="sec-sub" style={{textAlign:'center'}}>Every other tool gives your agent the raw secret. Hermetic gives you three tiers \u2014 from zero exposure to controlled terminal access.</div>
           </div>
         </SR>
         <SR delay="sr-d1">
-          <div style={{display:'flex', gap:6, justifyContent:'center', marginBottom:32, flexWrap:'wrap'}}>
+          <div style={{display:'flex', gap:8, justifyContent:'center', marginBottom:36, flexWrap:'wrap'}}>
             {tiers.map((ti,i) => (
               <button key={i} onClick={() => setTier(i)} style={{
-                padding:'10px 20px', borderRadius:12, border: tier===i ? `2px solid ${ti.color}` : '1px solid var(--border)',
+                padding:'12px 24px', borderRadius:14, border: tier===i ? `2px solid ${ti.color}` : '1px solid var(--border)',
                 background: tier===i ? `${ti.color}12` : 'var(--card-bg)',
-                color: tier===i ? ti.color : 'var(--t2)', fontSize:14, fontWeight:700, cursor:'pointer',
+                color: tier===i ? ti.color : 'var(--t2)', fontSize:15, fontWeight:700, cursor:'pointer',
                 fontFamily:'var(--hd)', transition:'all 0.25s',
               }}>{ti.label}</button>
             ))}
@@ -616,17 +622,22 @@ function HowSection() {
         <SR delay="sr-d2">
           <div style={{maxWidth:760, margin:'0 auto'}}>
             {/* Tier header */}
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20, flexWrap:'wrap', gap:12}}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16, flexWrap:'wrap', gap:12}}>
               <div>
                 <span style={{fontFamily:'var(--mn)', fontSize:11, fontWeight:700, color:t.color, letterSpacing:2, textTransform:'uppercase'}}>{t.tag}</span>
-                <div style={{fontSize:20, fontWeight:800, color:'var(--t1)', marginTop:2}}>{t.cmd}</div>
+                <div style={{fontSize:22, fontWeight:800, color:'var(--t1)', marginTop:2}}>{t.cmd}</div>
               </div>
               <div style={{padding:'6px 16px', borderRadius:100, background:`${t.color}12`, border:`1px solid ${t.color}30`, fontFamily:'var(--mn)', fontSize:12, fontWeight:600, color:t.color}}>
                 Credential exposure: {t.exposure}
               </div>
             </div>
 
-            {/* Flow diagram + command */}
+            {/* Brief explanation */}
+            <div style={{padding:'16px 20px', borderRadius:14, background:'var(--card-bg)', border:'1px solid var(--card-border)', marginBottom:20, fontSize:14, color:'var(--t2)', lineHeight:1.75}}>
+              {t.brief}
+            </div>
+
+            {/* Command demo */}
             <div className="code-block" style={{marginBottom:20}}>
               <div className="code-header">
                 <span>{t.cmd}</span>
@@ -644,8 +655,6 @@ function HowSection() {
 {"  Agent  ◀──response──  Daemon  ◀──────response──────  API"}{"\n"}
 {"\n"}
 <span className="v">{"✓ 200 OK"}</span>{"\n"}
-<span className="c">{"# Agent received the API response"}</span>{"\n"}
-<span className="c">{"# Agent NEVER saw the credential"}</span>{"\n"}
 <span className="c">{"# Credential zeroized from daemon memory"}</span>
                 </>)}
                 {tier === 1 && (<>
@@ -659,11 +668,9 @@ function HowSection() {
 {"  3. Injects credential as GITHUB_TOKEN"}{"\n"}
 {"  4. "}<span className="v">git push</span>{" runs with the token"}{"\n"}
 {"  5. Child exits → credential wiped"}{"\n"}
-{"  6. Agent gets exit code only"}{"\n"}
 {"\n"}
 <span className="v">{"✓ exit 0"}</span>{"\n"}
-<span className="c">{"# Dangerous interpreters (sh, bash, python) BLOCKED"}</span>{"\n"}
-<span className="c">{"# Child is process-isolated, dump-protected"}</span>
+<span className="c">{"# Dangerous interpreters BLOCKED · dump-protected"}</span>
                 </>)}
                 {tier === 2 && (<>
 <span className="c">{"# Print credential to YOUR terminal"}</span>{"\n"}
@@ -676,29 +683,113 @@ function HowSection() {
 {"\n"}
 <span className="v">{"sk_live_4eC3tH1sI5r3aL..."}</span>{"\n"}
 {"\n"}
-<span className="c">{"# Rate-limited: max 1 reveal per 10 seconds"}</span>{"\n"}
-<span className="c">{"# Audit-logged: who, when, which secret"}</span>{"\n"}
-<span className="c">{"# Your terminal, your responsibility"}</span>
-                </>)}
-                {tier === 3 && (<>
-<span className="c">{"# Protect ANY MCP server's credentials"}</span>{"\n"}
-<span className="k">$</span> hermetic proxy <span className="s">--server github</span> \{"\n"}
-{"    "}<span className="s">--credential GITHUB_TOKEN:github_pat</span> \{"\n"}
-{"    "}-- npx -y <span className="s">@modelcontextprotocol/server-github</span>{"\n"}
-{"\n"}
-<span className="c">{"# What happens inside:"}</span>{"\n"}
-{"  IDE ◀──JSON-RPC──▶ Hermetic Proxy ◀──JSON-RPC──▶ MCP Server"}{"\n"}
-{"\n"}
-{"  1. Resolves credential from encrypted vault"}{"\n"}
-{"  2. Spawns MCP server with credential in env"}{"\n"}
-{"  3. Relays all JSON-RPC messages"}{"\n"}
-{"  4. "}<span className="v">SCANS</span>{" every response for credential leakage"}{"\n"}
-{"  5. "}<span className="v">PINS</span>{" tool definitions (detects rug-pulls)"}{"\n"}
-{"  6. Enforces per-tool allow/deny policy"}{"\n"}
-{"\n"}
-<span className="v">{"✓ Zero credentials in your config files"}</span>
+<span className="c">{"# Rate-limited · Audit-logged · Your responsibility"}</span>
                 </>)}
               </div>
+            </div>
+          </div>
+        </SR>
+      </div>
+    </section>
+  );
+}
+
+// ═══ MCP PROXY — THE MOAT ═══
+function ProxySection() {
+  return (
+    <section className="sec" id="proxy" style={{background:'var(--surface)', position:'relative', overflow:'hidden'}}>
+      <div style={{position:'absolute', top:0, left:0, right:0, bottom:0, background:'radial-gradient(ellipse at 50% 0%, rgba(72,187,120,0.08) 0%, transparent 60%)', pointerEvents:'none'}} />
+      <div className="wrap" style={{position:'relative'}}>
+        <SR>
+          <div className="sec-hd" style={{textAlign:'center'}}>
+            <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 18px',borderRadius:100,background:'rgba(72,187,120,0.08)',border:'1px solid rgba(72,187,120,0.2)',fontSize:12,fontWeight:700,color:'var(--green)',marginBottom:20,fontFamily:'var(--mn)',letterSpacing:2,textTransform:'uppercase'}}>
+              🛡️ NEW — NOBODY ELSE HAS THIS
+            </div>
+            <h2 className="sec-title" style={{textAlign:'center', maxWidth:700, margin:'0 auto'}}>MCP Proxy — The MOAT</h2>
+            <div style={{width:48,height:3,borderRadius:2,background:'linear-gradient(90deg,var(--green),var(--accent))',margin:'12px auto 0'}} />
+            <div className="sec-sub" style={{textAlign:'center'}}>Every MCP server needs credentials in your config file. Every process on your machine can read that file. The proxy eliminates this entire attack surface.</div>
+          </div>
+        </SR>
+
+        <SR delay="sr-d1">
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, maxWidth:840, margin:'0 auto', alignItems:'start'}}>
+            {/* BEFORE */}
+            <div>
+              <div style={{fontFamily:'var(--mn)', fontSize:11, fontWeight:700, color:'var(--red)', letterSpacing:2, textTransform:'uppercase', marginBottom:10, textAlign:'center'}}>❌ BEFORE — EXPOSED</div>
+              <div className="code-block" style={{borderColor:'rgba(245,101,101,0.3)'}}>
+                <div className="code-header"><span>claude_desktop_config.json</span><span style={{color:'var(--red)'}}>⚠ DANGER</span></div>
+                <div className="code-body">
+{"{"}{"\n"}
+{"  "}<span className="k">"mcpServers"</span>: {"{"}{"\n"}
+{"    "}<span className="k">"github"</span>: {"{"}{"\n"}
+{"      "}<span className="k">"env"</span>: {"{"}{"\n"}
+{"        "}<span className="k">"GITHUB_TOKEN"</span>:{"\n"}
+{"          "}<span className="s" style={{color:'var(--red)'}}>"ghp_R3aLsEcR3t..."</span>{"\n"}
+{"      }"}{"\n"}
+{"    }"}{"\n"}
+{"  }"}{"\n"}
+{"}"}
+                </div>
+              </div>
+              <div style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:'rgba(245,101,101,0.06)',border:'1px solid rgba(245,101,101,0.15)',fontSize:12,color:'var(--red)',lineHeight:1.6, textAlign:'center'}}>
+                Plaintext token in config. Any process can read it. Compromised MCP server exfiltrates it.
+              </div>
+            </div>
+
+            {/* AFTER */}
+            <div>
+              <div style={{fontFamily:'var(--mn)', fontSize:11, fontWeight:700, color:'var(--green)', letterSpacing:2, textTransform:'uppercase', marginBottom:10, textAlign:'center'}}>✓ AFTER — HERMETIC PROXY</div>
+              <div className="code-block" style={{borderColor:'rgba(72,187,120,0.3)'}}>
+                <div className="code-header"><span>claude_desktop_config.json</span><span style={{color:'var(--green)'}}>● SECURE</span></div>
+                <div className="code-body">
+{"{"}{"\n"}
+{"  "}<span className="k">"mcpServers"</span>: {"{"}{"\n"}
+{"    "}<span className="k">"github"</span>: {"{"}{"\n"}
+{"      "}<span className="k">"command"</span>: <span className="s">"hermetic"</span>,{"\n"}
+{"      "}<span className="k">"args"</span>: [<span className="s">"proxy"</span>,{"\n"}
+{"        "}<span className="s">"--server"</span>, <span className="s">"github"</span>,{"\n"}
+{"        "}<span className="s">"--credential"</span>,{"\n"}
+{"        "}<span className="n">"GITHUB_TOKEN:gh_pat"</span>,{"\n"}
+{"        "}<span className="s">"--"</span>, <span className="s">"npx"</span>,{"\n"}
+{"        "}<span className="s">"@mcp/server-github"</span>]{"\n"}
+{"    }"}{"\n"}
+{"  }"}{"\n"}
+{"}"}
+                </div>
+              </div>
+              <div style={{marginTop:12,padding:'10px 14px',borderRadius:10,background:'rgba(72,187,120,0.06)',border:'1px solid rgba(72,187,120,0.15)',fontSize:12,color:'var(--green)',lineHeight:1.6, textAlign:'center'}}>
+                Zero credentials in config. Vault-resolved. Leak-scanned. Tool-pinned.
+              </div>
+            </div>
+          </div>
+        </SR>
+
+        {/* What the proxy does */}
+        <SR delay="sr-d2">
+          <div style={{maxWidth:840, margin:'40px auto 0'}}>
+            <div style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:12}}>
+              {[
+                {icon:'🔐', title:'Credential Injection', desc:'Resolves secrets from encrypted vault. Injects into MCP server environment. Zero plaintext in config files.', color:'var(--accent)'},
+                {icon:'🔍', title:'Leak Scanning', desc:'Scans every JSON-RPC response from server to agent. Catches compromised or malicious MCP servers leaking your credentials.', color:'var(--red)'},
+                {icon:'📌', title:'Tool Pinning', desc:'Cryptographic hash of tool schemas on first connect. Detects if a server changes its tools — stops supply chain rug-pulls.', color:'var(--purple)'},
+                {icon:'🚫', title:'Per-Tool Policy', desc:'Allow/deny rules per tool name. Block dangerous tools (file_write, execute_command) while keeping useful ones.', color:'var(--orange)'},
+                {icon:'🔒', title:'Process Isolation', desc:'MCP server runs in a new process group with sanitized environment. Dump-protected. Cannot read parent memory.', color:'var(--accent2)'},
+                {icon:'🧹', title:'Clean Shutdown', desc:'Kills entire process tree on exit — including grandchild processes spawned by npx. Zero orphaned servers.', color:'var(--green)'},
+              ].map((f,i) => (
+                <div key={i} className="card" style={{padding:'18px 16px', textAlign:'center', borderTop:`3px solid ${f.color}`}}>
+                  <div style={{fontSize:24, marginBottom:8}}>{f.icon}</div>
+                  <div style={{fontWeight:700, fontSize:14, marginBottom:6, color:'var(--t1)'}}>{f.title}</div>
+                  <div style={{fontSize:12, color:'var(--t3)', lineHeight:1.6}}>{f.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SR>
+
+        <SR delay="sr-d2">
+          <div style={{textAlign:'center', marginTop:32}}>
+            <div style={{display:'inline-flex',alignItems:'center',gap:10,padding:'14px 32px',borderRadius:100,background:'rgba(72,187,120,0.08)',border:'1px solid rgba(72,187,120,0.2)',fontSize:15,fontWeight:700,color:'var(--green)',fontFamily:'var(--hd)'}}>
+              Works with every MCP server — GitHub, Slack, Jira, Notion, filesystem, or any custom server
             </div>
           </div>
         </SR>
@@ -1095,17 +1186,17 @@ function PricingSection() {
         <SR delay="sr-d1">
           <div className="price-grid">
             {tiers.map((t,i) => {
-              const isPop = t.badge === 'POPULAR';
+              const isPro = t.name === 'Pro';
               return (
-                <div key={i} className={`card price-card${isPop?' featured':''}`}>
-                  {t.badge && <div style={{position:'absolute',top:0,left:0,right:0,padding:'5px 0',textAlign:'center',fontSize:10,fontWeight:800,color:isPop?'#060608':'#060608',background:isPop?'linear-gradient(135deg,var(--accent),var(--accent2))':t.badge==='AVAILABLE NOW'?'linear-gradient(135deg,var(--accent2),#4a7cff)':'transparent',letterSpacing:'2px',zIndex:1}}>{t.badge}</div>}
+                <div key={i} className={`card price-card${isPro?' featured':''}`}>
+                  {t.badge && <div style={{position:'absolute',top:0,left:0,right:0,padding:'5px 0',textAlign:'center',fontSize:10,fontWeight:800,color:'#060608',background:isPro?'linear-gradient(135deg,var(--accent),var(--accent2))':t.badge==='AVAILABLE NOW'?'linear-gradient(135deg,var(--accent2),#4a7cff)':'transparent',letterSpacing:'2px',zIndex:1}}>{t.badge}</div>}
                   <div className="price-name" style={{color:`var(--${t.c})`,marginTop:t.badge?24:0}}>{t.name}</div>
                   <div className="price-amount">{t.price}</div>
                   <div className="price-period">{t.sub}</div>
                   <ul className="price-features">
                     {t.features.map((f,fi) => <li key={fi}>{f}</li>)}
                   </ul>
-                  {isPop ? (
+                  {isPro ? (
                     <a href="mailto:dev@hermeticsys.com?subject=Pro%20Waitlist&body=I%27d%20like%20early%20access%20to%20Hermetic%20Pro." style={{display:'block',padding:'12px 0',textAlign:'center',borderRadius:12,fontWeight:700,fontSize:14,cursor:'pointer',background:'linear-gradient(135deg,var(--accent),var(--accent2))',color:'#060608',textDecoration:'none',border:'none',transition:'all 0.2s',fontFamily:'var(--hd)'}}>Join Waitlist →</a>
                   ) : t.name === 'Enterprise' ? (
                     <a href="mailto:dev@hermeticsys.com?subject=Enterprise%20Inquiry" style={{display:'block',padding:'12px 0',textAlign:'center',borderRadius:12,fontWeight:700,fontSize:14,cursor:'pointer',background:'var(--card-hover)',color:'var(--t1)',textDecoration:'none',border:'1px solid var(--border)',transition:'all 0.2s',fontFamily:'var(--hd)'}}>Contact Us</a>
@@ -1263,15 +1354,15 @@ function WaitlistForm() {
     <SR delay="sr-d2">
       <div style={{position:'relative',padding:'28px 24px',borderRadius:16,marginTop:48,overflow:'hidden',background:'var(--pill-bg)',border:'1px solid var(--pill-border)'}}>
         <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
-          <div style={{fontFamily:'var(--mn)',fontSize:11,fontWeight:700,color:'var(--accent)',letterSpacing:'2px',marginBottom:6,textTransform:'uppercase'}}>Early Access</div>
-          <h3 style={{fontSize:18,fontWeight:800,color:'var(--t1)',marginBottom:6}}>Get notified when Pro launches</h3>
-          <p style={{fontSize:14,color:'var(--t2)',lineHeight:1.6,maxWidth:480,margin:'0 auto 18px'}}>Be the first to know when Hermetic Pro launches. OAuth2, token monitoring, dashboards, unlimited secrets.</p>
+          <div style={{fontFamily:'var(--mn)',fontSize:11,fontWeight:700,color:'var(--accent)',letterSpacing:'2px',marginBottom:6,textTransform:'uppercase'}}>Pro Early Access</div>
+          <h3 style={{fontSize:18,fontWeight:800,color:'var(--t1)',marginBottom:6}}>Join the Waitlist</h3>
+          <p style={{fontSize:14,color:'var(--t2)',lineHeight:1.6,maxWidth:480,margin:'0 auto 18px'}}>Be the first to know when Hermetic Pro launches. OAuth2 auto-refresh, credential health monitoring, dashboards, unlimited secrets.</p>
           {status === 'success' ? (
             <div style={{padding:'10px 18px',borderRadius:10,background:'var(--pill-bg)',color:'var(--green)',fontSize:14,fontWeight:700,display:'inline-block',border:'1px solid var(--pill-border)'}}>✓ You're on the list!</div>
           ) : (
             <div style={{display:'flex',justifyContent:'center',gap:8,maxWidth:420,margin:'0 auto',flexWrap:'wrap'}}>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" style={{flex:'1 1 220px',padding:'10px 14px',borderRadius:10,border:'1px solid var(--border)',background:'var(--card-bg)',color:'var(--t1)',fontSize:13,fontFamily:'var(--mn)',outline:'none'}} />
-              <button onClick={() => { if(email && email.includes('@')) submitForm(API_WAITLIST, {email, source:'pricing', _subject:'Hermetic Updates'}, setStatus); }} disabled={status==='sending'} style={{padding:'10px 20px',borderRadius:10,background:'linear-gradient(135deg,var(--accent),var(--accent2))',color:'#000',fontWeight:700,fontSize:14,border:'none',cursor:'pointer',fontFamily:'var(--hd)',opacity:status==='sending'?0.6:1}}>{status==='sending'?'Sending...':'Get Updates →'}</button>
+              <button onClick={() => { if(email && email.includes('@')) submitForm(API_WAITLIST, {email, source:'pricing', _subject:'Hermetic Pro Waitlist'}, setStatus); }} disabled={status==='sending'} style={{padding:'10px 20px',borderRadius:10,background:'linear-gradient(135deg,var(--accent),var(--accent2))',color:'#000',fontWeight:700,fontSize:14,border:'none',cursor:'pointer',fontFamily:'var(--hd)',opacity:status==='sending'?0.6:1}}>{status==='sending'?'Sending...':'Join Waitlist →'}</button>
             </div>
           )}
           {status === 'error' && <div style={{color:'var(--red)',fontSize:12,marginTop:8}}>Something went wrong. Try again or email dev@hermeticsys.com</div>}
@@ -1405,6 +1496,7 @@ function App() {
     <Hero navTo={navTo} />
     <div className="divider" />
     <HowSection />
+    <ProxySection />
     <div className="divider" />
     <FeaturesSection />
     <EcosystemSection />
