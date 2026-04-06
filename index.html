@@ -602,13 +602,13 @@ function HowSection() {
   const [tier, setTier] = useState(0);
   const tiers = [
     {label:'★★★ Request', tag:'BROKERED', color:'var(--accent)', exposure:'ZERO',
-     brief:'The daemon makes the API call for you. Your credential never enters the agent\u2019s address space \u2014 not in memory, not in env vars, not in files, not in output. The agent sends a secret name and URL; the daemon injects the real credential and returns only the API response. No other tool does this.',
+     brief:'The daemon makes the API call for you. Your credential never enters the agent’s address space — not in memory, not in env vars, not in files, not in output. The agent sends a secret name and URL; the daemon injects the real credential and returns only the API response. No other tool does this.',
      cmd:'hermetic request'},
     {label:'★★ Run', tag:'TRANSIENT', color:'var(--accent2)', exposure:'~milliseconds',
-     brief:'Credential lives in a child process for the duration of one command, then is wiped. The child runs in an isolated process group with a sanitized environment. Dangerous interpreters (sh, bash, python, node) are blocked by default. The agent gets the exit code \u2014 never the credential.',
+     brief:'Credential lives in a child process for the duration of one command, then is wiped. The child runs in an isolated process group with a sanitized environment. Dangerous interpreters (sh, bash, python, node) are blocked by default. The agent gets the exit code — never the credential.',
      cmd:'hermetic run'},
     {label:'★ Reveal', tag:'DIRECT', color:'var(--purple)', exposure:'Terminal only',
-     brief:'Prints the credential to your terminal \u2014 not the agent\u2019s. Requires passphrase re-entry as a safety ceremony. Rate-limited to prevent brute-force. Every reveal is audit-logged with timestamp, process ID, and target. Your terminal, your responsibility.',
+     brief:'Prints the credential to your terminal — not the agent’s. Requires passphrase re-entry as a safety ceremony. Rate-limited to prevent brute-force. Every reveal is audit-logged with timestamp, process ID, and target. Your terminal, your responsibility.',
      cmd:'hermetic reveal'},
   ];
   const t = tiers[tier];
@@ -620,7 +620,7 @@ function HowSection() {
             <div className="sec-label" style={{color:'var(--accent)', textAlign:'center'}}>How It Works</div>
             <h2 className="sec-title" style={{textAlign:'center'}}>Three security tiers. You choose the exposure.</h2>
             <div style={{width:48,height:3,borderRadius:2,background:'linear-gradient(90deg,var(--accent),var(--accent2))',margin:'12px auto 0'}} />
-            <div className="sec-sub" style={{textAlign:'center'}}>Every other tool gives your agent the raw secret. Hermetic gives you three tiers \u2014 from zero exposure to controlled terminal access.</div>
+            <div className="sec-sub" style={{textAlign:'center'}}>Every other tool gives your agent the raw secret. Hermetic gives you three tiers — from zero exposure to controlled terminal access.</div>
           </div>
         </SR>
         <SR delay="sr-d1">
