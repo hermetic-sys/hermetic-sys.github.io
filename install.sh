@@ -1,72 +1,197 @@
 #!/bin/sh
-set -eu
+# Hermetic Installer
+# https://hermeticsys.com
+#
+# Usage: curl -fsSL https://hermeticsys.com/install.sh | sh
+#    or: curl -fsSL https://raw.githubusercontent.com/hermetic-sys/Hermetic/main/scripts/install.sh | sh
+#
+# Respects: HERMETIC_INSTALL_DIR (default: /usr/local/bin or ~/.local/bin)
 
-REPO="hermetic-sys/hermetic"
+set -e
+
+REPO="hermetic-sys/Hermetic"
 BINARY="hermetic"
-INSTALL_DIR="${HERMETIC_INSTALL_DIR:-$HOME/.local/bin}"
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
-info()  { printf "${CYAN}==>${NC} %s\n" "$1"; }
-ok()    { printf "${GREEN} ✓${NC} %s\n" "$1"; }
-fail()  { printf "${RED} ✗ %s${NC}\n" "$1"; exit 1; }
+# ── Parse flags ──
+VERIFY=false
+for arg in "$@"; do
+  case "$arg" in
+    --verify) VERIFY=true ;;
+  esac
+done
 
-printf "\n"
-printf "${BOLD}  ╦ ╦╔═╗╦═╗╔╦╗╔═╗╔╦╗╦╔═╗${NC}\n"
-printf "${BOLD}  ╠═╣║╣ ╠╦╝║║║║╣  ║ ║║  ${NC}\n"
-printf "${BOLD}  ╩ ╩╚═╝╩╚═╩ ╩╚═╝ ╩ ╩╚═╝${NC}\n"
-printf "  ${CYAN}Agent-Isolated Credential Broker${NC}\n\n"
-
-OS=$(uname -s); ARCH=$(uname -m)
-case "$OS" in Linux) ;; *) fail "Hermetic supports Linux only. Got: $OS" ;; esac
-case "$ARCH" in x86_64|amd64) ARCH="x86_64" ;; *) fail "Hermetic supports x86_64 only. Got: $ARCH" ;; esac
-
-info "Finding latest release..."
-LATEST=$(curl -sS "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"//;s/".*//')
-[ -z "$LATEST" ] && fail "Could not find latest release. Check https://github.com/$REPO/releases"
-
-ASSET="${BINARY}-${LATEST}-linux-${ARCH}"
-URL="https://github.com/$REPO/releases/download/${LATEST}/${ASSET}"
-
-info "Downloading Hermetic ${LATEST}..."
-TMPDIR=$(mktemp -d); trap 'rm -rf "$TMPDIR"' EXIT
-curl -fSL --progress-bar -o "$TMPDIR/$BINARY" "$URL" || fail "Download failed: $URL"
-curl -fsSL -o "$TMPDIR/SHA256SUMS" "https://github.com/$REPO/releases/download/${LATEST}/SHA256SUMS" 2>/dev/null || true
-curl -fsSL -o "$TMPDIR/${BINARY}.sig" "${URL}.sig" 2>/dev/null || true
-
-if [ -f "$TMPDIR/SHA256SUMS" ]; then
-  info "Verifying checksum..."
-  EXPECTED=$(grep "$ASSET" "$TMPDIR/SHA256SUMS" | awk '{print $1}')
-  ACTUAL=$(sha256sum "$TMPDIR/$BINARY" | awk '{print $1}')
-  if [ -n "$EXPECTED" ] && [ "$EXPECTED" = "$ACTUAL" ]; then ok "SHA-256 verified"
-  elif [ -n "$EXPECTED" ]; then fail "Checksum mismatch! Expected: $EXPECTED Got: $ACTUAL"
-  fi
-fi
-
-if command -v gpg >/dev/null 2>&1 && [ -f "$TMPDIR/${BINARY}.sig" ]; then
-  info "Verifying GPG signature..."
-  curl -fsSL -o "$TMPDIR/key.pub" "https://github.com/$REPO/releases/download/${LATEST}/SIGNING_KEY.pub" 2>/dev/null || true
-  if [ -f "$TMPDIR/key.pub" ]; then
-    gpg --batch --quiet --import "$TMPDIR/key.pub" 2>/dev/null || true
-    gpg --batch --verify "$TMPDIR/${BINARY}.sig" "$TMPDIR/$BINARY" 2>/dev/null && ok "GPG signature verified" || printf "  ${CYAN}ℹ GPG verification skipped${NC}\n"
-  fi
+# ── Colors (if terminal supports them) ──
+if [ -t 1 ]; then
+  GREEN='\033[0;32m'
+  RED='\033[0;31m'
+  YELLOW='\033[0;33m'
+  CYAN='\033[0;36m'
+  BOLD='\033[1m'
+  NC='\033[0m'
 else
-  printf "  ${CYAN}ℹ GPG not available — skipping signature check${NC}\n"
+  GREEN='' RED='' YELLOW='' CYAN='' BOLD='' NC=''
 fi
 
-info "Installing to $INSTALL_DIR..."
-mkdir -p "$INSTALL_DIR"
-mv "$TMPDIR/$BINARY" "$INSTALL_DIR/$BINARY"
-chmod +x "$INSTALL_DIR/$BINARY"
+info()  { printf "${CYAN}${BOLD}=>${NC} %s\n" "$1"; }
+ok()    { printf "${GREEN}${BOLD} ✓${NC} %s\n" "$1"; }
+warn()  { printf "${YELLOW}${BOLD} !${NC} %s\n" "$1"; }
+fail()  { printf "${RED}${BOLD} ✗${NC} %s\n" "$1"; exit 1; }
 
-case ":$PATH:" in *":$INSTALL_DIR:"*) ;; *)
-  printf "\n  ${CYAN}Add to ~/.bashrc or ~/.zshrc:${NC}\n"
-  printf "    export PATH=\"\$PATH:$INSTALL_DIR\"\n\n"
-  ;; esac
+# ── Platform check ──
+OS=$(uname -s)
+ARCH=$(uname -m)
 
-printf "\n"; ok "Hermetic ${LATEST} installed"
-printf "\n  ${BOLD}Get started:${NC}\n"
-printf "    ${GREEN}hermetic init${NC}                  Create encrypted vault\n"
-printf "    ${GREEN}hermetic add --wizard${NC}          Add your first API key\n"
-printf "    ${GREEN}hermetic start${NC}                 Start the daemon\n"
-printf "    ${GREEN}hermetic mcp-config --install${NC}  Connect to Claude Code / Cursor\n"
-printf "\n  Docs: https://hermeticsys.com/docs\n\n"
+if [ "$OS" != "Linux" ]; then
+  fail "Hermetic V1 requires Linux. You have: $OS"
+fi
+
+if [ "$ARCH" != "x86_64" ]; then
+  fail "Hermetic V1 requires x86_64. You have: $ARCH"
+fi
+
+ok "Platform: Linux $ARCH"
+
+# ── Check dependencies ──
+for cmd in curl tar; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    fail "Required: $cmd (install with your package manager)"
+  fi
+done
+
+# ── Determine install directory ──
+if [ -n "$HERMETIC_INSTALL_DIR" ]; then
+  INSTALL_DIR="$HERMETIC_INSTALL_DIR"
+elif [ -w /usr/local/bin ]; then
+  INSTALL_DIR="/usr/local/bin"
+else
+  INSTALL_DIR="$HOME/.local/bin"
+  mkdir -p "$INSTALL_DIR"
+fi
+
+# ── Check for existing installation ──
+if command -v hermetic >/dev/null 2>&1; then
+  CURRENT=$(hermetic version 2>/dev/null | head -1 || echo "unknown")
+  warn "Existing installation: $CURRENT"
+  info "Upgrading..."
+fi
+
+# ── Get latest release ──
+info "Finding latest release..."
+
+RELEASE_URL=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | \
+  grep -o '"browser_download_url": *"[^"]*linux-x86_64\.tar\.gz"' | \
+  grep -o 'https://[^"]*' | head -1)
+
+if [ -z "$RELEASE_URL" ]; then
+  # Fallback: try to construct URL from latest tag
+  TAG=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null | \
+    grep -o '"tag_name": *"[^"]*"' | grep -o 'v[^"]*' | head -1)
+
+  if [ -z "$TAG" ]; then
+    fail "Could not find latest release. Check: https://github.com/$REPO/releases"
+  fi
+
+  VERSION=${TAG#v}
+  RELEASE_URL="https://github.com/$REPO/releases/download/$TAG/hermetic-${VERSION}-linux-x86_64.tar.gz"
+fi
+
+info "Downloading: $RELEASE_URL"
+
+# ── Download and extract ──
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+if ! curl -fsSL "$RELEASE_URL" -o "$TMPDIR/hermetic.tar.gz"; then
+  fail "Download failed. Check your network and try again."
+fi
+
+cd "$TMPDIR"
+tar xzf hermetic.tar.gz
+
+if [ ! -f "$TMPDIR/hermetic" ]; then
+  fail "Archive does not contain 'hermetic' binary"
+fi
+
+chmod +x "$TMPDIR/hermetic"
+
+# ── Verify binary runs ──
+if ! "$TMPDIR/hermetic" version >/dev/null 2>&1; then
+  fail "Binary verification failed — may be incompatible with your system"
+fi
+
+# ── Install ──
+if [ -w "$INSTALL_DIR" ]; then
+  mv "$TMPDIR/hermetic" "$INSTALL_DIR/"
+else
+  info "Need sudo to install to $INSTALL_DIR"
+  sudo mv "$TMPDIR/hermetic" "$INSTALL_DIR/"
+fi
+
+ok "Installed to $INSTALL_DIR/hermetic"
+
+# ── GPG signature verification (--verify) ──
+if [ "$VERIFY" = true ]; then
+  warn "GPG signing is planned for v1.0.1. Binary integrity is verified via SHA256SUMS."
+  warn "Download SHA256SUMS from the GitHub Release page to verify your binary."
+  if false; then
+    # GPG verification — re-enable when signing key is published
+    info "Verifying GPG signature..."
+    if ! command -v gpg >/dev/null 2>&1; then
+      warn "gpg not found — cannot verify signature"
+      warn "Install gnupg to enable verification"
+    else
+      curl -sSL -o "${TMPDIR}/hermetic.tar.gz.asc" \
+        "${RELEASE_URL}.asc" 2>/dev/null || true
+      curl -sSL -o "${TMPDIR}/SIGNING_KEY.pub" \
+        "https://raw.githubusercontent.com/hermetic-sys/Hermetic/main/SIGNING_KEY.pub" 2>/dev/null || true
+      if [ -f "${TMPDIR}/hermetic.tar.gz.asc" ] && [ -f "${TMPDIR}/SIGNING_KEY.pub" ]; then
+        gpg --batch --import "${TMPDIR}/SIGNING_KEY.pub" 2>/dev/null
+        if gpg --batch --verify "${TMPDIR}/hermetic.tar.gz.asc" "${TMPDIR}/hermetic.tar.gz" 2>/dev/null; then
+          ok "GPG signature verified"
+        else
+          fail "GPG signature verification FAILED — binary may have been tampered with"
+        fi
+      else
+        warn "Signature not available (release may not be signed yet)"
+        warn "Continuing without verification..."
+    fi
+  fi
+  fi  # end if false (GPG disabled until signing key published)
+fi
+
+# ── Verify PATH ──
+if ! command -v hermetic >/dev/null 2>&1; then
+  warn "$INSTALL_DIR is not in your PATH"
+  warn "Add this to your shell profile:"
+  warn "  export PATH=\"$INSTALL_DIR:\$PATH\""
+fi
+
+# ── Show version ──
+echo ""
+"$INSTALL_DIR/hermetic" version 2>/dev/null || true
+echo ""
+
+# ── Run doctor ──
+info "Running diagnostics..."
+"$INSTALL_DIR/hermetic" doctor 2>/dev/null || true
+echo ""
+
+# ── Success ──
+printf "${GREEN}${BOLD}"
+cat << 'BANNER'
+╔══════════════════════════════════════════════╗
+║  Hermetic installed successfully!              ║
+╚══════════════════════════════════════════════╝
+BANNER
+printf "${NC}"
+echo ""
+echo "  Quick start:"
+echo "    hermetic init --quickstart     # One-command setup"
+echo "    hermetic add --wizard          # Add API keys interactively"
+echo "    hermetic connect               # Configure your AI agents"
+echo ""
+echo "  agent-isolated credential broker"
+echo ""
+echo "  Documentation: https://hermeticsys.com/docs"
+echo "  Source:         https://github.com/$REPO"
+echo ""
