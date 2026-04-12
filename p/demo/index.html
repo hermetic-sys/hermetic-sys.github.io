@@ -158,7 +158,7 @@ p{font-size:clamp(.82rem,1.1vw,.92rem);color:var(--t2);max-width:480px;margin-bo
 
 /* Terminal: full content visible */
 .trm-body{overflow-x:auto!important;overflow-y:visible!important}
-.trm .ln{white-space:pre-wrap!important}
+.trm .ln{white-space:pre!important;overflow-x:visible!important}
 
 /* FONT SCALE */
 h1{font-size:clamp(2.2rem,4.5vw,3.5rem)!important}
@@ -468,31 +468,28 @@ p{font-size:.85rem!important}
 <tr data-d="650"><td>Agent keychains</td><td style="color:var(--t2)">Any UID</td><td><span class="r" style="font-weight:600">YES</span></td></tr>
 <tr data-d="800"><td>In-memory stores</td><td style="color:var(--t2)">In memory</td><td><span class="r" style="font-weight:600">YES</span></td></tr>
 <tr data-d="950" class="win"><td>Hermetic</td><td style="color:var(--g)">Daemon calls</td><td><span class="g" style="font-weight:700;font-size:13px">NO</span></td></tr>
-</tbody></table></div></div><div class="S" data-t="352"><div class="L"><div class="tg">14 — one daemon</div>
+</tbody></table></div></div><div class="S" data-t="360"><div class="L"><div class="tg">14 — one daemon</div>
 <h2>"Can't Cursor just <span class="am">build this natively?"</span></h2>
-<div class="dr" data-d="200"><div class="dr-ic" style="background:rgba(255,204,0,.1);color:#FFCC00">1</div><div><div class="dr-tx">Cursor is an IDE</div><div class="dr-sub">Their business is code completion speed, not credential security.</div></div></div>
-<div class="dr" data-d="500"><div class="dr-ic" style="background:rgba(255,204,0,.1);color:#FFCC00">2</div><div><div class="dr-tx">Only covers Cursor</div><div class="dr-sub">Your team also uses Claude Code, Copilot, CI pipelines, custom agents.</div></div></div>
-<div class="dr" data-d="800"><div class="dr-ic" style="background:rgba(255,204,0,.1);color:#FFCC00">3</div><div><div class="dr-tx">Credentials inside the IDE</div><div class="dr-sub">A compromised extension can read them from process memory.</div></div></div>
-</div><div class="R"><div class="rh">Hermetic: one daemon, all tools</div>
+<div class="dr" data-d="200"><div class="dr-ic" style="background:rgba(255,204,0,.1);color:#FFCC00">1</div><div><div class="dr-tx">Cursor is an IDE</div><div class="dr-sub">Their business is code completion, not credential security.</div></div></div>
+<div class="dr" data-d="500"><div class="dr-ic" style="background:rgba(255,204,0,.1);color:#FFCC00">2</div><div><div class="dr-tx">Only covers Cursor</div><div class="dr-sub">Your team uses Claude Code, Copilot, CI, custom agents.</div></div></div>
+<div class="dr" data-d="800"><div class="dr-ic" style="background:rgba(255,204,0,.1);color:#FFCC00">3</div><div><div class="dr-tx">Credentials inside the IDE</div><div class="dr-sub">A compromised extension reads from process memory.</div></div></div>
+<div style="margin-top:12px">
 <div class="fc">
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px">
-<div class="fc-box cyn" data-d="200">Claude Code</div>
-<div class="fc-box cyn" data-d="350">Cursor</div>
-<div class="fc-box cyn" data-d="500">Copilot</div>
-<div class="fc-box cyn" data-d="650">Windsurf</div>
-<div class="fc-box cyn" data-d="800">CI/CD</div>
-<div class="fc-box cyn" data-d="950">Custom</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px">
+<div class="fc-box cyn" data-d="1000">Claude Code</div>
+<div class="fc-box cyn" data-d="1100">Cursor</div>
+<div class="fc-box cyn" data-d="1200">Copilot</div>
+<div class="fc-box cyn" data-d="1300">Windsurf</div>
+<div class="fc-box cyn" data-d="1400">CI/CD</div>
+<div class="fc-box cyn" data-d="1500">Custom</div>
 </div>
-<div style="text-align:center;padding:4px"><span class="fc-arr" data-d="1100" style="font-size:20px;color:#22D3EE">↓</span></div>
-<div class="fc-row"><div class="fc-box grn" data-d="1300" style="font-weight:700;font-size:15px">ONE HERMETIC DAEMON</div></div>
-<div style="text-align:center;padding:4px"><span class="fc-arr" data-d="1500" style="font-size:20px;color:#22D3EE">↓</span></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
-<div class="fc-box" data-d="1700">One vault</div>
-<div class="fc-box" data-d="1850">One audit trail</div>
-<div class="fc-box" data-d="2000">Kernel isolation</div>
-</div>
-</div>
-<p style="font-size:13px;margin-top:12px;color:#888;text-align:center">Credentials in a <strong style="color:var(--g)">separate process</strong> with kernel-enforced memory isolation — not inside the IDE.</p>
+<div style="text-align:center;padding:2px"><span class="fc-arr" data-d="1600" style="font-size:18px;color:#22D3EE">↓</span></div>
+<div class="fc-row"><div class="fc-box grn" data-d="1700" style="font-weight:700">ONE HERMETIC DAEMON</div></div>
+</div></div>
+</div><div class="R"><div class="rh">One audit trail — every agent, every call</div>
+<div class="trm"><div class="trm-bar"><div class="trm-dot" style="background:#ff5f56"></div><div class="trm-dot" style="background:#ffbd2e"></div><div class="trm-dot" style="background:#27c93f"></div><span class="trm-t">hermetic audit --tail 8</span></div><div class="trm-body"><div class="ln" data-d="0"><span class="pr">$ </span><span class="cm">hermetic audit --tail 8</span></div><div class="ln" data-d="300"></div><div class="ln" data-d="400"><span class="ok">  44 REQUEST  OPENAI_API_KEY     claude-code</span></div><div class="ln" data-d="600"><span class="ok">  45 REQUEST  STRIPE_SECRET_KEY  cursor</span></div><div class="ln" data-d="800"><span class="ok">  46 RUN      GITHUB_TOKEN       copilot</span></div><div class="ln" data-d="1000"><span class="ok">  47 REQUEST  OPENAI_API_KEY     windsurf</span></div><div class="ln" data-d="1200"><span class="ok">  48 REQUEST  AWS_ACCESS_KEY     ci-pipeline</span></div><div class="ln" data-d="1400"><span class="am">  49 DENIED   STRIPE_SECRET_KEY  unknown-bin</span></div><div class="ln" data-d="1600"><span class="ok">  50 REQUEST  ANTHROPIC_KEY      claude-code</span></div><div class="ln" data-d="1800"><span class="ok">  51 RUN      GITHUB_TOKEN       custom-agent</span></div><div class="ln" data-d="2100"></div><div class="ln" data-d="2200"><span class="ou">  Chain integrity: verified ✓</span></div></div></div>
+<p style="font-size:10px;color:var(--t2);margin-top:8px">Every agent. Every service. Every denied attempt. One tamper-proof log.</p>
+<p style="font-size:10px;color:var(--t3);margin-top:4px">Credentials in a <strong style="color:var(--g)">separate process</strong> — not inside the IDE.</p>
 </div></div>
 
 <div class="S" data-t="392"><div class="L"><div class="tg">15 — built different</div>
