@@ -347,8 +347,8 @@ p{font-size:.85rem!important}
 <div style="margin-top:14px;padding:10px;border-left:3px solid var(--g)"><p style="font-size:14px;margin:0;color:#999">Credential is <strong style="color:var(--g)">locked to its intended destination.</strong> Even if the agent is fully compromised.</p></div>
 </div></div>
 
-<div class="S" data-t="156"><div class="L"><div class="tg">05 — brokered mode</div>
-<h2>Watch the <span class="am">Authorization header.</span></h2>
+<div class="S" data-t="156"><div class="L"><div class="tg">05 — the moat</div>
+<h2>The credential never leaves. <span class="g">That's the moat.</span></h2>
 <div class="trm"><div class="trm-bar"><div class="trm-dot" style="background:#ff5f56"></div><div class="trm-dot" style="background:#ffbd2e"></div><div class="trm-dot" style="background:#27c93f"></div><span class="trm-t">hermetic request</span></div><div class="trm-body"><div class="ln" data-d="0"><span class="pr">$ </span><span class="cm">hermetic request --secret test_api \</span></div><div class="ln" data-d="200"><span class="cm">    --url https://httpbin.org/get</span></div><div class="ln" data-d="600"><span class="ou">&#123;</span></div><div class="ln" data-d="800"><span class="ou">  "headers": &#123;</span></div><div class="ln" data-d="1000"><span class="ou">    "Accept": "*/*",</span></div><div class="ln" data-d="1200"><span class="hl">    "Authorization": "Bearer demotoken123",</span></div><div class="ln" data-d="1500"><span class="ou">    "Host": "httpbin.org",</span></div><div class="ln" data-d="1700"><span class="ou">    "User-Agent": "Hermetic/1.0"</span></div><div class="ln" data-d="1900"><span class="ou">  &#125; &#125;</span></div></div></div></div>
 <div class="R"><div class="rh" style="color:var(--r)">Without Hermetic</div>
 <div class="ba" style="border-color:rgba(255,59,48,.25);background:rgba(255,59,48,.02);margin-bottom:8px">
@@ -464,8 +464,8 @@ p{font-size:.85rem!important}
 <div class="dr" data-d="2400"><div class="dr-ic" style="background:rgba(255,59,48,.1);color:var(--r)">⚠️</div><div><div class="dr-tx">DENIED entries logged</div><div class="dr-sub">Every failed access attempt recorded and chained.</div></div></div>
 </div></div>
 
-<div class="S" data-t="324"><div class="L"><div class="tg">09 — the moat + competition</div>
-<h2>MCP Proxy. <span class="cy">Nobody else built this.</span></h2>
+<div class="S" data-t="324"><div class="L"><div class="tg">09 — the second moat</div>
+<h2>MCP Proxy. <span class="cy">The second moat.</span></h2>
 <div class="sb" data-d="150" style="border-color:var(--cy);background:rgba(34,211,238,.02)"><b style="color:var(--cy)">INJECT</b><span>Credentials from vault. No plaintext on disk.</span></div>
 <div class="sb" data-d="350" style="border-color:var(--cy);background:rgba(34,211,238,.02)"><b style="color:var(--cy)">SCAN</b><span>Every response. Exact-match. 0 false positives.</span></div>
 <div class="sb" data-d="550" style="border-color:var(--cy);background:rgba(34,211,238,.02)"><b style="color:var(--cy)">PIN</b><span>SHA-256 tool schemas. Rug-pull = refused.</span></div>
