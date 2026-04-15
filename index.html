@@ -1440,6 +1440,7 @@ function Nav({section, navTo, theme, toggleTheme}) {
           {SECTIONS.map(s => (
             <button key={s.id} className={`nav-link${section===s.id?' active':''}`} onClick={() => navTo(s.id)}>{s.name}</button>
           ))}
+          <a href="/blog/" className="nav-link" style={{textDecoration:'none'}}>Blog</a>
           <button className="theme-toggle" onClick={toggleTheme} title={theme==='dark'?'Switch to light mode':'Switch to dark mode'}>{theme==='dark'?'☀':'☾'}</button>
           <button className="nav-cta" onClick={() => navTo('start')}>Get Started</button>
         </div>

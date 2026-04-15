@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>Blog | Hermetic</title>
+<meta name="description" content="Technical blog from The Hermetic Project — agent-isolated credential brokering, AI security, and open-source Rust engineering.">
+<meta property="og:title" content="Blog | Hermetic">
+<meta property="og:description" content="Technical blog from The Hermetic Project.">
+<meta property="og:url" content="https://hermeticsys.com/blog/">
+<link rel="canonical" href="https://hermeticsys.com/blog/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060608;--surface:#0e0f14;--surface2:#151720;--border:#1e2030;--t1:#eef0f6;--t2:#9298ad;--t3:#5d6378;--accent:#4fd1c5;--hd:'DM Sans',system-ui,sans-serif;--mn:'IBM Plex Mono','Menlo',monospace;--nav-glass:rgba(6,6,8,0.85)}
+[data-theme="light"]{--bg:#f7f4ef;--surface:#efece6;--border:#d5d0c6;--t1:#1c1a17;--t2:#4a4640;--t3:#7a756b;--accent:#1a8a7f;--nav-glass:rgba(247,244,239,0.92)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{min-height:100%;background:var(--bg);color:var(--t1);font-family:var(--hd);-webkit-font-smoothing:antialiased}
+::selection{background:rgba(79,209,197,0.2)}
+.nav{position:sticky;top:0;z-index:100;background:var(--nav-glass);backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1)}
+.nav-logo-text{font-size:19px;font-weight:700;letter-spacing:-0.5px}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-link{padding:8px 16px;font-size:14px;font-weight:500;color:var(--t2);border-radius:8px;text-decoration:none;transition:all 0.2s}
+.nav-link:hover{color:var(--t1);background:rgba(255,255,255,0.04)}
+.nav-link.active{color:var(--t1);background:rgba(79,209,197,0.1)}
+.blog-container{max-width:760px;margin:0 auto;padding:60px 28px 100px}
+.blog-container h1{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.blog-container .subtitle{color:var(--t3);font-size:15px;margin-bottom:48px}
+.post-card{display:block;text-decoration:none;padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;transition:all 0.2s}
+.post-card:hover{border-color:rgba(79,209,197,0.3);transform:translateY(-2px)}
+.post-card h2{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
+.post-card p{font-size:15px;color:var(--t2);line-height:1.6;margin-bottom:12px}
+.post-card .meta{font-size:13px;color:var(--t3);font-family:var(--mn)}
+.post-card .tags{display:flex;gap:6px;margin-top:10px}
+.post-card .tag{font-size:11px;font-family:var(--mn);padding:2px 8px;border-radius:100px;background:rgba(79,209,197,0.06);border:1px solid rgba(79,209,197,0.12);color:var(--accent)}
+@media(max-width:768px){.nav-links{display:none}.blog-container{padding:40px 20px 80px}}
+</style>
+</head>
+<body>
+<nav class="nav">
+<div class="nav-inner">
+<a href="/" class="nav-logo"><span class="nav-logo-text">Hermetic</span></a>
+<div class="nav-links">
+<a href="/#how" class="nav-link">How It Works</a>
+<a href="/#features" class="nav-link">Features</a>
+<a href="/#proof" class="nav-link">Proof</a>
+<a href="/blog/" class="nav-link active">Blog</a>
+<a href="https://github.com/hermetic-sys/hermetic" class="nav-link" style="color:var(--accent)">GitHub</a>
+</div>
+</div>
+</nav>
+
+<div class="blog-container">
+<h1>Blog</h1>
+<p class="subtitle">Technical writing from The Hermetic Project</p>
+
+<a href="/blog/secure-code-game-ai-agent-security/" class="post-card">
+<h2>I Played GitHub's AI Agent Security Game. Here's What Every Level Teaches About Credential Isolation.</h2>
+<p>GitHub released a game where developers hack AI agents. I played all 5 levels and mapped every vulnerability against Hermetic's architecture. Result: 5/5 prevented.</p>
+<div class="meta">April 15, 2026</div>
+<div class="tags"><span class="tag">security</span><span class="tag">mcp</span><span class="tag">owasp</span><span class="tag">ai-agents</span></div>
+</a>
+
+</div>
+
+<script>
+if(window.matchMedia('(prefers-color-scheme:light)').matches)document.documentElement.setAttribute('data-theme','light');
+</script>
+</body>
+</html>
