@@ -720,6 +720,7 @@ function Nav({section, navTo, theme, toggle}) {
           {SECTIONS.map(s => (
             <button key={s.id} className={`nav-link${section===s.id?' active':''}`} onClick={() => go(s.id)}>{s.name}</button>
           ))}
+          <a href="/blog/" className="nav-link">Blog</a>
         </div>
         <div className="nav-right">
           <button className="theme-btn" onClick={toggle} title={theme==='dark'?'Light mode':'Dark mode'}>{theme==='dark'?'☀':'☾'}</button>
@@ -734,6 +735,7 @@ function Nav({section, navTo, theme, toggle}) {
       {SECTIONS.map(s => (
         <button key={s.id} className={`drawer-item${section===s.id?' active':''}`} onClick={() => go(s.id)}>{s.name}</button>
       ))}
+      <a href="/blog/" className="drawer-item">Blog</a>
       <button className="drawer-item" onClick={() => go('install')}>Get Hermetic</button>
     </div>
   </>);
