@@ -165,7 +165,7 @@ body{min-height:100%;background:var(--bg);color:var(--t1);font-family:var(--hd);
 
 <p>The MCPwn attack chain has five steps. Here's how Hermetic's architecture blocks each one.</p>
 
-<p><strong>Step 1: Unauthenticated MCP access.</strong> nginx-ui's <code>/mcp_message</code> endpoint allows unauthenticated requests by default. Hermetic requires binary attestation (HC-18) on every connection. The daemon reads <code>/proc/pid/exe</code> of the connecting process, computes its SHA-256 hash, and verifies it against a known-good binary hash. There is no "allow all" default.</p>
+<p><strong>Step 1: Unauthenticated MCP access.</strong> nginx-ui's <code>/mcp_message</code> endpoint allows unauthenticated requests by default. Hermetic requires binary attestation on every connection. The daemon reads <code>/proc/pid/exe</code> of the connecting process, computes its SHA-256 hash, and verifies it against a known-good binary hash. There is no "allow all" default.</p>
 
 <p><strong>Step 2: Session token reuse from a different process.</strong> nginx-ui's session ID works from any process on any machine. Hermetic's session tokens are PID-bound. A token stolen from one process is rejected when used from a different PID. Additionally, every message carries SCM_CREDENTIALS &mdash; kernel-verified sender identity on every message, not just the first.</p>
 
@@ -189,7 +189,7 @@ body{min-height:100%;background:var(--bg);color:var(--t1);font-family:var(--hd);
 <tr>
 <td>Unauthenticated MCP access</td>
 <td>Default: allow all</td>
-<td>Binary attestation on every connection (HC-18)</td>
+<td>Binary attestation on every connection</td>
 </tr>
 <tr>
 <td>Session token reuse</td>
