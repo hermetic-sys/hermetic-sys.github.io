@@ -53,6 +53,7 @@ hermetic connect
 
 ## Blog Posts
 
+- [MCP Security Is Broken](https://hermeticsys.com/blog/mcp-security-broken/) — Three CVEs and a breach in one week. The pattern and the fix.
 - [MCPwn: CVE-2026-33032 Architectural Analysis](https://hermeticsys.com/blog/mcpwn-mcp-security-boundary/)
 - [Secure Code Game: AI Agent Security Lessons](https://hermeticsys.com/blog/secure-code-game-ai-agent-security/)
 
