@@ -1,0 +1,71 @@
+# Hermetic
+
+> Hermetic is a local Rust daemon that brokers credentials for AI coding
+> agents. The daemon makes the API call. The agent never sees the key.
+
+## What Hermetic Does
+
+Hermetic holds API keys, OAuth tokens, and other credentials in an
+AES-256-GCM encrypted vault. When an AI agent needs to make an
+authenticated API call, it asks Hermetic via MCP. The daemon decrypts
+the credential, injects it into the HTTPS request, makes the call,
+zeroizes the credential from memory, and returns only the response.
+The agent processes the result without ever seeing the secret value.
+
+## Key Facts
+
+- 5 credential types: static API keys, OAuth2 refresh tokens, AWS SigV4 signing, JWT private key signing, SSH agent
+- Community edition: free, 10 secrets, 26 service templates
+- Works with Claude Code, Cursor, Windsurf, and any MCP-compatible IDE
+- Single Rust binary, local-only, zero telemetry, zero cloud dependencies
+- AGPL-3.0-or-later open-source cryptographic core
+
+## MCP Tools (Community Edition)
+
+- hermetic_authenticated_request: Brokered HTTP calls — agent gets response, never the key
+- hermetic_list_secrets: List stored credentials (names and metadata, never values)
+- hermetic_env_spawn: Run a command with a credential injected as an environment variable
+- hermetic_seal_vault: Emergency lockdown — zeroize all key material
+- hermetic_suggest_add: Guide the user to add a new credential
+
+## Install
+
+```
+curl -fsSL https://hermeticsys.com/install.sh | sh
+hermetic init
+hermetic add
+hermetic start
+hermetic connect
+```
+
+## Links
+
+- Website: https://hermeticsys.com
+- GitHub: https://github.com/hermetic-sys/hermetic
+- Blog: https://hermeticsys.com/blog/
+- Install script: https://hermeticsys.com/install.sh
+
+## Documentation
+
+- [Getting Started](https://hermeticsys.com/blog/)
+- [MCP Integration](https://hermeticsys.com/blog/)
+- [Security Model](https://hermeticsys.com/blog/)
+
+## Blog Posts
+
+- [MCPwn: CVE-2026-33032 Architectural Analysis](https://hermeticsys.com/blog/mcpwn-mcp-security-boundary/)
+- [Secure Code Game: AI Agent Security Lessons](https://hermeticsys.com/blog/secure-code-game-ai-agent-security/)
+
+## FAQ
+
+Q: How do I secure API keys when using AI coding agents?
+A: Use a credential broker like Hermetic. The daemon holds the key in an encrypted vault, makes the API call on the agent's behalf, and returns only the response. The agent never sees the credential.
+
+Q: What is credential isolation for AI agents?
+A: Credential isolation means the AI agent can use credentials to make authenticated API calls without the credentials ever entering the agent's process memory. This prevents exfiltration via prompt injection.
+
+Q: Does Hermetic work with Claude Code?
+A: Yes. Hermetic integrates via MCP (Model Context Protocol). Run hermetic connect to configure it, then the agent uses hermetic_authenticated_request for brokered API calls.
+
+Q: Is Hermetic free?
+A: The Community edition is free with 10 secrets, 26 service templates, and the full security kernel. Pro adds unlimited secrets, OAuth2 auto-refresh, AWS SigV4, JWT signing, and dashboards.
