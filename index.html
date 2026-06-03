@@ -1188,7 +1188,7 @@ function Evidence() {
         <SR delay="sr-d1">
           <div className="ev-grid">
             <div className="ev-tile">
-              <div className="ev-n">1,000+</div>
+              <div className="ev-n">1,700+</div>
               <div className="ev-l">Tests</div>
               <div className="ev-d">Unit, integration, and adversarial tests across the workspace. Every security-critical path is contract-tested.</div>
             </div>
@@ -1203,9 +1203,9 @@ function Evidence() {
               <div className="ev-d">Independent AI-powered adversarial campaigns. White-box, full source access, published findings. Reports live in the repository.</div>
             </div>
             <div className="ev-tile">
-              <div className="ev-n">5</div>
+              <div className="ev-n">8+</div>
               <div className="ev-l">Vulns found, fixed</div>
-              <div className="ev-d">Five distinct vulnerabilities discovered and closed by permanent architectural fixes. Each class is blocked at the architecture level, with regression tests in the suite.</div>
+              <div className="ev-d">Vulnerabilities discovered and closed by permanent architectural fixes, spanning five distinct classes. Each class is blocked at the architecture level, with regression tests in the suite.</div>
             </div>
             <div className="ev-tile">
               <div className="ev-n" style={{color:'var(--green)'}}>0</div>
@@ -1345,6 +1345,7 @@ function Research() {
               <p>Sender verification and PID-bound tokens close two specific vulnerabilities, but a credential daemon on Linux needs more. <strong>PR_SET_DUMPABLE=0</strong> blocks same-UID processes from reading <code>/proc/pid/exe</code>, <code>/proc/pid/mem</code>, <code>/proc/pid/environ</code>, and <code>/proc/pid/fd/</code>. The attestation protocol has to complete before DUMPABLE=0 can be set, which creates a narrow window during which tokens must not yet exist in client memory.</p>
               <p>Beyond the kernel primitives, a hardened daemon needs library-injection defenses to catch LD_PRELOAD attacks, scoped session tokens with narrow TTLs to limit blast radius, and token delivery channels that don't appear in <code>/proc/pid/environ</code> or <code>/proc/pid/cmdline</code>. Each layer handles a class the others cannot.</p>
               <p>No single mechanism is sufficient. Sender verification catches socket-level impersonation. PID binding catches token-level theft. DUMPABLE restrictions catch inspection across the attestation boundary. Scoped tokens limit lateral movement if any component is compromised. These compose into a defense that survives the failure of any single layer.</p>
+              <p>These layers raise the cost of same-UID extraction from trivial to substantial — they close the FD-sharing race, token replay, and opportunistic memory scraping. They do not make a same-UID attacker with arbitrary code execution impossible; they shrink the window and the blast radius. The architectural close — running the broker under a separate UID the agent cannot reach — is the next milestone.</p>
             </SR>
 
             <SR delay="sr-d1">
