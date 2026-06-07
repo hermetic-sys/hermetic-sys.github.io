@@ -131,7 +131,7 @@ ok "Installed to $INSTALL_DIR/hermetic"
 
 # ── GPG signature verification (--verify) ──
 if [ "$VERIFY" = true ]; then
-  warn "GPG signing is planned for v1.0.1. Binary integrity is verified via SHA256SUMS."
+  warn "GPG signing is planned. Binary integrity is verified via SHA256SUMS."
   warn "Download SHA256SUMS from the GitHub Release page to verify your binary."
   if false; then
     # GPG verification — re-enable when signing key is published
