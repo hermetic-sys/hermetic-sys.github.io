@@ -606,7 +606,7 @@ const SECTIONS = [
 
 const TIERS = [
   {id:'brokered', name:'Brokered request', tag:'★★★', exposure:'Zero', color:'var(--accent)',
-   blurb:"The daemon makes the API call for you. Your credential never enters the agent's address space — not in memory, not in environment variables, not in process files, not in output. The agent sends a secret name and a URL; the daemon injects the real credential and returns only the API response.",
+   blurb:"Hermetic makes the API call for you. Your credential never enters the agent's address space — not in memory, not in environment variables, not in process files, not in output. The agent sends a secret name and a URL; Hermetic injects the real credential and returns only the API response.",
    cmd:'hermetic request',
    code:[
      {t:'c', v:"# The agent never sees the credential"},
