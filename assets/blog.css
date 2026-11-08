@@ -1,0 +1,63 @@
+/* Blog: article typography on top of site.css */
+
+.post { padding: 64px 0 96px; }
+.post .wrap { max-width: 780px; }
+.back { font-family: var(--mn); font-size: 12.5px; color: var(--t3); }
+.post-title { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.12; margin: 18px 0 14px; }
+.post-sub { font-size: 18px; color: var(--t2); margin: -4px 0 14px; }
+.byline { font-family: var(--mn); font-size: 12.5px; color: var(--t3); }
+.post-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+
+.correction { margin: 30px 0 8px; border: 1px solid var(--gold-soft); background: var(--gold-soft); border-left: 3px solid var(--gold); border-radius: 10px; padding: 14px 16px; font-size: 14px; color: var(--t2); }
+.correction strong { color: var(--t1); }
+
+.prose { margin-top: 28px; font-size: 16.5px; line-height: 1.75; color: var(--t2); }
+.prose > * + * { margin-top: 18px; }
+.prose p { margin: 0; color: var(--t2); }
+.prose h2 { font-size: 26px; margin-top: 46px; }
+.prose h3 { font-size: 20px; margin-top: 34px; }
+.prose h4 { font-size: 16.5px; margin-top: 26px; }
+.prose ul, .prose ol { padding-left: 22px; margin: 0; }
+.prose li + li { margin-top: 6px; }
+.prose a { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent-strong); }
+.prose hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+.prose pre { background: var(--code-bg); border: 1px solid var(--line-h); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-size: 13.5px; line-height: 1.7; }
+.prose pre code { background: none; border: 0; padding: 0; font-size: inherit; color: var(--t2); }
+.prose table { width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.prose th, .prose td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.prose th { font-family: var(--mn); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); background: var(--bg-elev); }
+.prose tr:last-child td { border-bottom: 0; }
+
+/* blocks carried over from the original posts */
+.prose .level-card { border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 18px 20px; }
+.prose .level-card > * + * { margin-top: 12px; }
+.prose .vuln { font-family: var(--mn); font-size: 12.5px; color: var(--red); }
+.prose .defense { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; font-size: 14.5px; color: var(--t2); }
+.prose .limitations { border: 1px solid var(--line-h); background: var(--card); border-radius: 12px; padding: 20px 22px; }
+.prose .limitations > * + * { margin-top: 12px; }
+.prose .limitations h2 { margin-top: 0; font-size: 22px; }
+.prose .wp-callout { border-radius: 10px; padding: 14px 16px; font-size: 15px; border: 1px solid var(--line); background: var(--card); }
+.prose .wp-callout.warn { border-color: var(--gold-soft); background: var(--gold-soft); }
+.prose .wp-callout.info { border-color: var(--blue-soft); background: var(--blue-soft); }
+.prose .wp-callout.ok { border-color: var(--green-soft); background: var(--green-soft); }
+.prose .note-update { border-left: 3px solid var(--green); background: var(--green-soft); border-radius: 8px; padding: 12px 14px; }
+
+.post-end { margin-top: 56px; border-top: 1px solid var(--line); padding-top: 26px; }
+.post-end p { font-size: 14px; color: var(--t3); }
+
+/* index */
+.blog-head { padding: 64px 0 18px; }
+.blog-head h1 { font-size: clamp(34px, 5vw, 52px); }
+.blog-head p { font-size: 17px; margin-top: 12px; }
+.posts { display: grid; gap: 14px; padding-bottom: 96px; }
+.post-card { display: block; border: 1px solid var(--card-border); background: var(--card); border-radius: 14px; padding: 24px 26px; color: inherit; transition: border-color .2s, transform .2s, background .2s; }
+.post-card:hover { text-decoration: none; border-color: var(--accent-mid); background: var(--card-h); transform: translateY(-2px); }
+.post-card h2 { font-size: 21px; line-height: 1.25; }
+.post-card p { font-size: 15px; margin: 10px 0 12px; }
+.post-card .byline { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+@media (prefers-reduced-motion: reduce) { .post-card { transition: none; } .post-card:hover { transform: none; } }
+@media (max-width: 560px) { .prose { font-size: 16px; } .post { padding: 44px 0 72px; } }
+/* paragraph rhythm: sibling spacing must beat the p margin reset above */
+.prose > * + p, .prose > p + *, .prose .level-card > * + p, .prose .limitations > * + p { margin-top: 18px; }
+.prose > h2 + *, .prose > h3 + *, .prose > h4 + * { margin-top: 12px; }
+.prose .level-card > :first-child, .prose .limitations > :first-child { margin-top: 0; }

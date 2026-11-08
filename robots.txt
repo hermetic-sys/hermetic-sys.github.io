@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: /p/
+Allow: /
 
 Sitemap: https://hermeticsys.com/sitemap.xml

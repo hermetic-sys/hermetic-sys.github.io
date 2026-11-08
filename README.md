@@ -1,2 +1,2 @@
 # hermetic-sys.github.io
-Hermetic — Agent-Isolates Credential Broker for AI Agents
+Source of hermeticsys.com — Hermetic, an agent-isolated credential broker for AI agents.
