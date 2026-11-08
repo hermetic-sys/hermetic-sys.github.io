@@ -96,7 +96,7 @@
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
       });
-    }, { rootMargin: '0px 0px -8% 0px' });
+    }, { threshold: 0 });
     Array.prototype.forEach.call(items, function (el) { io.observe(el); });
   }
 

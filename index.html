@@ -88,7 +88,7 @@
       <a class="btn btn-primary" href="#waitlist">Join the waitlist →</a>
       <a class="btn btn-ghost" href="#how">See how it works</a>
     </div>
-    <p class="fine">Private pre-release · Linux x86_64 · single binary, no runtime dependencies, no telemetry</p>
+    <p class="fine">Private pre-release · Linux x86_64 · single binary, no telemetry · the optional agent shield needs bubblewrap</p>
 
     <div class="flow rv" role="img" aria-label="The agent sends a key name and a URL to Hermetic. Hermetic's daemon decrypts the key and Hermetic's bridge makes the HTTPS call. Only the response flows back to the agent.">
       <div class="flow-row">
@@ -541,7 +541,7 @@
         </div>
       </div>
       <div class="arch-row">
-        <div class="side">Hardened</div>
+        <div class="side">Clients</div>
         <div class="arch-cells g2 grid">
           <div class="arch-cell prop"><div class="n">MCP bridge</div><div class="d">Started by the agent. Holds one key for one request, locked down for that window.</div></div>
           <div class="arch-cell prop"><div class="n">CLI · terminal dashboard · web dashboard</div><div class="d">Operator surfaces. Every vault change needs a fresh passphrase proof.</div></div>
@@ -685,6 +685,7 @@
 
 <!-- ═══ WAITLIST ═══ -->
 <section id="waitlist">
+  <span id="install"></span>
   <div class="wrap">
     <div class="waitlist rv">
       <div>

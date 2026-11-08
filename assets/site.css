@@ -183,7 +183,7 @@ section.alt { background: var(--bg-elev); border-top: 1px solid var(--line); bor
 .hero .wrap { position: relative; z-index: 1; text-align: center; }
 .pill { display: inline-flex; align-items: center; gap: 9px; font-family: var(--mn); font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--t2); border: 1px solid var(--line-h); background: var(--card); padding: 7px 14px; border-radius: 999px; margin-bottom: 26px; }
 .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.hero h1 .swap { display: inline-block; color: var(--gold); font-style: italic; padding-right: .08em; min-width: 3.6em; text-align: left; }
+.hero h1 .swap { display: inline-block; color: var(--gold); font-style: italic; padding-right: .08em; min-width: 4.1em; text-align: left; }
 .hero h1 .swap.fade { animation: swapIn .45s ease; }
 @keyframes swapIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 .hero .sub { max-width: 700px; margin: 24px auto 0; font-size: 18.5px; line-height: 1.6; color: var(--t2); }
