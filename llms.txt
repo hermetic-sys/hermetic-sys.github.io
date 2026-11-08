@@ -29,7 +29,7 @@ and `hermetic reveal`, which prints one chosen key to a terminal.
 - 170+ service templates; keys from 40 services are recognised by prefix
 - New keys are brokered-only by default; `hermetic tier` allows one key to be handed to programs
 - Per-key rules: domains, methods, paths, body size; 9 reference profiles; strict/advisory mode
-- Destructive-endpoint floor: 74 irreversible endpoints across 48 services blocked by default, with optional ask-first approval
+- Destructive-endpoint floor: a built-in catalogue of irreversible endpoints across dozens of services, blocked by default, with optional ask-first approval
 - `hermetic shield -- <agent>` runs an agent in Linux namespaces where the vault directory and Hermetic's processes are hidden (needs bubblewrap)
 - Tamper-evident audit log with rollback detection; CLI only, no agent tool reads it
 - Works with Claude Code, Cursor, Windsurf, Claude Desktop, VS Code, OpenClaw and any stdio MCP client

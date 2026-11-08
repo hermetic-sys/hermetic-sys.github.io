@@ -80,7 +80,7 @@
 <h1 class="post-title">MCPwn Is What Happens When MCP Has No Security Boundary</h1>
 <div class="byline">The Hermetic Project · <time datetime="2026-04-19">April 19, 2026</time></div>
 <div class="post-tags"><span class="tag acc">security</span><span class="tag acc">mcp</span><span class="tag acc">cve</span><span class="tag acc">ai-agents</span><span class="tag acc">credential-isolation</span></div>
-<div class="correction" role="note"><strong>Corrected November 2026.</strong> This post said Hermetic's six MCP tools are read-only and cannot touch the daemon. Community has five tools (Pro has six); a brokered request can write to the APIs a key is bound to, within that key's rules; and one tool performs an emergency lockdown. None of them returns a credential or edits the vault.</div>
+<div class="correction" role="note"><strong>Corrected November 2026.</strong> This post said Hermetic's six MCP tools are read-only and cannot touch the daemon. Community has five tools (Pro has six); a brokered request can write to the APIs a key is bound to, within that key's rules; and one tool performs an emergency lockdown. None of them returns a credential or edits the vault. Kernel flag names are now described in plain words.</div>
 <div class="prose">
 <p>Two days ago, a CVSS 9.8 vulnerability in nginx-ui &mdash; an open-source web management interface for Nginx &mdash; went public. It's being actively exploited in the wild. The attack takes two HTTP requests and about four seconds. The result is complete Nginx server takeover.</p>
 
@@ -125,7 +125,7 @@
 
 <p><strong>Step 1: Unauthenticated MCP access.</strong> nginx-ui's <code>/mcp_message</code> endpoint allows unauthenticated requests by default. Hermetic requires binary attestation on every connection. The daemon reads <code>/proc/pid/exe</code> of the connecting process, computes its SHA-256 hash, and verifies it against a known-good binary hash. There is no "allow all" default.</p>
 
-<p><strong>Step 2: Session token reuse from a different process.</strong> nginx-ui's session ID works from any process on any machine. Hermetic's session tokens are PID-bound. A token stolen from one process is rejected when used from a different PID. Additionally, every message carries SCM_CREDENTIALS &mdash; kernel-verified sender identity on every message, not just the first.</p>
+<p><strong>Step 2: Session token reuse from a different process.</strong> nginx-ui's session ID works from any process on any machine. Hermetic's session tokens are PID-bound. A token stolen from one process is rejected when used from a different PID. Additionally, every message carries kernel-verified sender identity &mdash; on every message, not just the first.</p>
 
 <p><strong>Step 3: MCP tools with excessive privileges.</strong> nginx-ui's MCP tools can restart the server and rewrite configs. Hermetic's MCP tools (five, or six in Pro) cannot read a credential, change the vault or rewrite the daemon's configuration; the only one that changes the daemon's state is the emergency lockdown. They broker API requests &mdash; the agent says "call this API" and gets back the response.</p>
 
@@ -152,7 +152,7 @@
 <tr>
 <td>Session token reuse</td>
 <td>Session ID works from any process</td>
-<td>PID-bound tokens + per-message SCM_CREDENTIALS</td>
+<td>PID-bound tokens + kernel-verified sender on every message</td>
 </tr>
 <tr>
 <td>Excessive MCP privileges</td>
